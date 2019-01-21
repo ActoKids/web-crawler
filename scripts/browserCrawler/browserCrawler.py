@@ -122,4 +122,5 @@ def main():
     except Exception as e:
         print("Error gathering URL data, " + str(e))
 
-main()
+if __name__ == '__main__':
+	main()
