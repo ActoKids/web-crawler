@@ -65,4 +65,5 @@ def main():
     with open('data.txt', 'w') as outfile:
         json.dump(event_data_list, outfile)
    
-
+if __name__ == '__main__':
+	main()

@@ -5,7 +5,7 @@ NSC - AD440 CLOUD PRACTICIUM
 @authors: Nicholas Bennett, Dao Nguyen, Ryan Berry, Kyrrah Nork, Michael Leon
 
 """
-from fbEventCrawl import fbEventCrawler
+from fbEventCrawler import fbEventCrawler
 from browserCrawler import browserCrawler
 
 def main ():
