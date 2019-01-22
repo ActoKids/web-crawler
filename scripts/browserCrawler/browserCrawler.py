@@ -34,7 +34,7 @@ def open_url(url):
         if row.has_attr("href"):
             if row["href"] not in FOUND_LIST and "eventbrite" in row["href"]:
                 if ("seattle" in row["href"] or "/e/" in row["href"] and row["href"] not in FOUND_LIST):
-                    print("Unique link added to queue - " + row["href"])
+                    print("Unique link added to queue - " + row["href"] + "\n")
                     FOUND_LIST.append(row["href"])
                     QUEUE.append(row["href"])
     paginator = re.compile(".*paginator.*")
@@ -86,7 +86,6 @@ def scan_page(soup):
                         for tag in data.find_next('div').findAll("p"):
                             if not tag.find("a"):
                                 location = location + tag.text + " "
-                        if "seattle" in location.lower():
                             event_data["Location"] = location
                         else:
                             break
