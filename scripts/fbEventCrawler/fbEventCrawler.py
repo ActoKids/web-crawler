@@ -15,9 +15,11 @@ import json
 API_VERSION = '3.1'
 
 #User facebook access token
-ACCESS_TOKEN = 'YOUR_ACCESS_TOKEN'
+ACCESS_TOKEN = 'EAAHtVhajj5kBAHG6cXwVCJpoZA0q4dpsZAT59XPBJ4S93Ad6JZCrqqZBNnW2\
+                ZBuXSgbUEDZALddlbyfaMY91szP3X2EwF3jMK2MFBguDU2ANowmEu8PeOgWgyt\
+                dMy4zhlvFERZA0RshPFEWuUFM2ZCvQgCmCWMP3zKRWHZAcBAY9oGIjW0PXtNKhW'
 
-#All current fields from a facebook event right right. Facebook might add more fields 
+#All current fields from a facebook event right now. Facebook might add more fields 
 #or remove these fields in the future. Always check https://developers.facebook.com/docs/graph-api/reference/event/
 #for current facebook event fields.
 EVENT_FIELDS = ['attending_count',
@@ -54,16 +56,16 @@ def main():
         Output to "data.txt" file
 
     """
-
+    print("Facebook Events Crawl Started.")
     graph = facebook.GraphAPI(access_token=ACCESS_TOKEN, version=API_VERSION)
 
     fields_param = ','.join(EVENT_FIELDS)
     event_data_list = graph.get_object('me?fields=events{'+fields_param+'}')
 
-    print(event_data_list)
-
-    with open('data.txt', 'w') as outfile:
+    with open('fb_event_data.json', 'w') as outfile:
         json.dump(event_data_list, outfile)
-   
+
+    print("Facebook Events Crawl Completed.")  
+    
 if __name__ == '__main__':
 	main()

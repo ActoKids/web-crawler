@@ -33,9 +33,10 @@ def open_url(url):
     for row in soup.findAll("a"):
         if row.has_attr("href"):
             if row["href"] not in FOUND_LIST and "eventbrite" in row["href"]:
-                print("Unique link found - " + row["href"])
-                FOUND_LIST.append(row["href"])
-                QUEUE.append(row["href"])
+                if ("seattle" in row["href"] or "/e/" in row["href"] and row["href"] not in FOUND_LIST):
+                    print("Unique link added to queue - " + row["href"])
+                    FOUND_LIST.append(row["href"])
+                    QUEUE.append(row["href"])
     paginator = re.compile(".*paginator.*")
     max_pages = 0
     page = 1
@@ -52,20 +53,18 @@ def open_url(url):
             page += 1
     while QUEUE:
         current_url = QUEUE.pop(0)
-        print("\n" + str(len(QUEUE)) + " link's remaining in QUEUE!")
+        print("Opening - " + current_url)
+        print(str(len(QUEUE)) + " URL's remaining")
         try:
-            print("\nOpening found link - " + current_url)
-            if "seattle" in current_url or "/e/" in current_url:
-                open_url(current_url)
-            else:
-                print("Ignoring link")
+            #print("\nOpening found link - " + current_url)
+            open_url(current_url)
         except Exception as a:
             try:
                 print(a)
                 open_url(url + current_url)
             except:
-                print("Link failed")
-    create_json()
+                print("URL failed")
+    
 
 
 def scan_page(soup):
@@ -106,21 +105,25 @@ def scan_page(soup):
             event_data["Description"] = "None"
         if event_data["Price"] is None or event_data["Price"] == "":
             event_data["Price"] = "Unknown"
-        print(event_data["Title"] + " added to json OUTPUT.")
+        print("Event found! - " + event_data["Title"] +"\n")
         OUTPUT[event_data["Title"]] = event_data
+    else:
+        print("Data missing, ignoring URL" + "\n")
 
 
 def create_json():
-    with open('data.json', 'w') as outfile:
+    with open('browser_event_data.json', 'w') as outfile:
         json.dump(OUTPUT, outfile)
 
 
 def main():
     try:
+        print("Browser Events Crawl Started.")
         open_url(EVENT_BRITE)
-        print("Task completed.")
+        print("Browser Events Crawl Completed.")
+        create_json()
     except Exception as e:
         print("Error gathering URL data, " + str(e))
-
+    
 if __name__ == '__main__':
 	main()
