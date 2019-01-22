@@ -1,6 +1,4 @@
 language: python
-branches:
-    dev_browserCrawler: true
 python:
   - "3.6"
 cache: pip
