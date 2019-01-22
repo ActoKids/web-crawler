@@ -3,4 +3,4 @@ python:
   - "3.6"
 cache: pip
 script:
-  - python crawlerTest.py
+  - python scripts/crawlerTest/crawlerTest.py
