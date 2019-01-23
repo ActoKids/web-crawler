@@ -1,3 +1,5 @@
 ipython[notebook]
 pygments
 beautifulsoup4
+urllib3
+json
