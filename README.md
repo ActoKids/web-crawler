@@ -6,7 +6,7 @@ Web Crawler Team - What do we do:
 
 1.
 
-## DevOps technology 101
+## web-crawler technology 101
 
 The repository structure consists of two subfolders dedicated to different areaas of web-crawler.
 
