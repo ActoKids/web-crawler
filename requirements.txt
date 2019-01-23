@@ -3,3 +3,4 @@ pygments
 beautifulsoup4
 urllib3
 requests
+facebook-sdk
