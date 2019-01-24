@@ -5,5 +5,6 @@ cache: pip
 install:
   - pip3 install --upgrade oauth2client
   - pip install urllib3
+  - pip3 install requests
 script:
   - python scripts/crawler.py
