@@ -7,5 +7,6 @@ install:
   - pip install urllib3
   - pip3 install requests
   - pip install facebook-sdk
+  - pip install BeautifulSoup4
 script:
   - python scripts/crawler.py
