@@ -2,5 +2,7 @@ language: python
 python:
   - "3.6"
 cache: pip
+install:
+  - pip3 install --upgrade oauth2client
 script:
   - python scripts/crawler.py
