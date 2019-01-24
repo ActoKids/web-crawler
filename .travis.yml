@@ -8,5 +8,6 @@ install:
   - pip3 install requests
   - pip install facebook-sdk
   - pip install BeautifulSoup4
+  - pip install --upgrade google-api-python-client
 script:
   - python scripts/crawler.py
