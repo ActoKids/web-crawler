@@ -7,12 +7,17 @@ NSC - AD440 CLOUD PRACTICIUM
 """
 from fbEventCrawler import fbEventCrawler
 from browserCrawler import browserCrawler
+from googleCalendarCrawler import calendarCrawler   
 
 def main ():
     try:
         fbEventCrawler.main()
     except:
         print("Facebook Crawler failed, check ACCESS_TOKEN")
+    try:
+        calendarCrawler.main()
+    except:
+        print("Google Calendar Crawler Failed")
     try:
         browserCrawler.main()
     except:

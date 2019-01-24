@@ -12,7 +12,6 @@ import json
 from bs4 import BeautifulSoup
 
 # This script scrapes a website and pulls specific data.
-
 FOUND_LIST = []
 QUEUE = []
 OUTPUT = {}

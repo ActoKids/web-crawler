@@ -1,13 +1,21 @@
 from __future__ import print_function
 import datetime
+import json
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
+OUTPUT = {}
+
+def create_json():
+    with open('calendar_event_data.json', 'w') as outfile:
+        json.dump(OUTPUT, outfile)
 
 def main():
+    print("Google Calendar Crawl Started.")
+    global OUTPUT
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
@@ -29,8 +37,11 @@ def main():
     if not events:
         print('No upcoming events found.')
     for event in events:
-        start = event['start'].get('dateTime', event['start'].get('date'))
-        print(start, event['summary'])
+        OUTPUT[event['summary']] = {"Title": event['summary'], "Time": event['start'].get('dateTime'), "Date": event['start'].get('date')}
+        #start = event['start'].get('dateTime', event['start'].get('date'))
+        #print(start, event['summary'])
+    create_json()
+    print("Google Calendar Crawler Completed.")
 
 if __name__ == '__main__':
     main()
