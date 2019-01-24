@@ -4,4 +4,4 @@ beautifulsoup4
 urllib3
 requests
 facebook-sdk
-googleapiclient
+google-api-python-client
