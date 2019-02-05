@@ -19,4 +19,4 @@ deploy:
   handler_name: "handler"
   runtime: "python3.6"
   on:
-    branch: develop
+    branch: dev
