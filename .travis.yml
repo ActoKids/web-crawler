@@ -11,3 +11,12 @@ install:
   - pip install --upgrade google-api-python-client
 script:
   - python scripts/crawler.py
+deploy:
+  provider: lambda
+  role: arn:aws:iam::061431082068:role/NSC2019_Lambda-S2-and-Dynamo-Full
+  function_name: "web_crawler_development"
+  region: "us-west-2"
+  handler_name: "handler"
+  runtime: "python3.6"
+  on:
+    branch: develop
