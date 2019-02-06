@@ -37,9 +37,12 @@ def main():
     if not events:
         print('No upcoming events found.')
     for event in events:
-        OUTPUT[event['summary']] = {"Title": event['summary'], "Time": event['start'].get('dateTime'), "Date": event['start'].get('date')}
-        #start = event['start'].get('dateTime', event['start'].get('date'))
-        #print(start, event['summary'])
+       try:
+            OUTPUT[event['summary']] = {"Title": event['summary'], "Time": event['start'].get('dateTime'), "Date": event['start'].get('date'), "Location": event['location'], "Description": event['description'], "Email": email}
+        except UnicodeEncodeError:
+            print('Event data not found')
+        except KeyError:
+            print('Event data not published')
     create_json()
     print("Google Calendar Crawler Completed.")
 
