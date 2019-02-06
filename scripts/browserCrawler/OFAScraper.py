@@ -15,7 +15,8 @@ FOUND_LIST = []
 OUTPUT = {}
 SOUP = []
 
-def open_link(current_soup):
+def open_link(current_soup, current_url):
+    OUTPUT["URL"] = current_url
     find_title(current_soup)
     find_date(current_soup)  
     return OUTPUT   

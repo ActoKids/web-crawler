@@ -18,6 +18,8 @@ import time
 from dateutil.parser import parse
 from datetime import datetime
 from . import OFAScraper
+import boto3
+
 
 # This script scrapes a website and pulls specific data.
 FOUND_LIST = []
@@ -27,6 +29,8 @@ SOUP = []
 EVENT_BRITE = "https://www.eventbrite.com/d/wa--seattle/disability/?page=1"
 OFA = "https://outdoorsforall.org/events-news/calendar/"
 DESTINATION = [OFA, EVENT_BRITE]
+#DESTINATION = [EVENT_BRITE]
+#s3 = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 
 def open_url(url):
     # Function opens a url, parses it with Beautifulsoup
@@ -43,46 +47,59 @@ def open_url(url):
                 if (("seattle" in row["href"] or 
                     "page=" in row["href"] or "/e/" in row["href"]) and
                      row["href"] not in FOUND_LIST):
-                    print("Unique link added to queue - " + row["href"] + "\n")
+                    #print("Link added to queue - " + row["href"] + "\n")
                     FOUND_LIST.append(row["href"])
                     QUEUE.append(row["href"])
+    print("Looking for more pages")                
+    try:
+        #print()
+        find_pages(url, soup)
+    except:
+        print("No more pages found")
+        print()
+    while QUEUE:
+        current_url = QUEUE.pop(0)
+        print("Scraping for a new event...")
+        print("Links remaining - " + str(len(QUEUE)))
+        try:       
+            if "login" not in current_url and "page=" not in current_url:
+                #print(current_url)
+                inner_soup = get_soup(current_url)
+                data = scrape_page(inner_soup, current_url)
+                if data:
+                    OUTPUT[current_url] = data
+        except Exception as a:
+            print("url failed " + str(a))
+        print("Scraping reached end of page")
+        print()
+
+def find_pages(url, soup):
     paginator = re.compile(".*paginator.*")
     max_pages = 0
     page = 1
-    # Finds max page number so all events are found
-    while QUEUE:
-        current_url = QUEUE.pop(0)
-        print("Crawling - " + current_url)
-        print(str(len(QUEUE)) + " URL's remaining")
-        try:       
-            if "page=" not in current_url:
-                print(current_url)
-                OUTPUT[current_url] = scrape_page(soup)
-                print("Scraped")
-            else:
-                print("Finding links...")
-                if current_url not in FOUND_LIST:
-                    for row in soup.findAll(attrs={"class": paginator}):
-                        for anchor in row.findAll('a'):
-                            if anchor.text.isdigit():
-                                max_pages = int(anchor.text)
-                    while page <= max_pages:
-                        if page != 1:
-                            FOUND_LIST.append(url[:-1] + str(page))
-                            QUEUE.append(url[:-1] + str(page))
-                        page += 1
-            open_url(current_url)
-        except Exception as a:
-            try:
-                print(a)
-                print("Rewriting to : " + url + current_url)
-                open_url(url + current_url)
-            except:
-                print("URL failed")
-    
+    if url not in FOUND_LIST:
+        for row in soup.findAll(attrs={"class": paginator}):
+            for anchor in row.findAll('a'):
+                if anchor.text.isdigit():
+                    max_pages = int(anchor.text)
+        while page <= max_pages:
+            if page != 1:
+                FOUND_LIST.append(url[:-1] + str(page))
+                #print("Opening page " + str(page))
+                #print()
+                open_url(url[:-1] + str(page))
+            page += 1
+            print("Additional page found!")
+    else:
+        #print("Unable to find additional pages")
+        print()
 
+def get_soup(url):
+    response = urllib.request.urlopen(url)
+    soup = BeautifulSoup(response, "html.parser")
+    return soup
 
-def scrape_page(soup):
+def scrape_page(soup, url):
     data = {}
     keywords = ["disability", 
                 "handicap", 
@@ -104,7 +121,8 @@ def scrape_page(soup):
     key_found = False
     for key in keywords:
         if key in soup.find("body").text.lower():
-            print("SUCCESS found - " + key)
+            #print("SUCCESS found - " + key)
+            #print()
             key_found = True
             break
     if key_found:
@@ -113,7 +131,7 @@ def scrape_page(soup):
         title_re = re.compile('.*title.*')
         body_re = re.compile('.*body.*')
         date_re = re.compile('.*date.*')
-
+        data["URL"] = url
         if soup.find(text='Location'):
             count = 0
             location = ""
@@ -121,7 +139,7 @@ def scrape_page(soup):
                 if count != 3:
                     if len(row.text) <= 64 and not row.find("a"):
                         location += location + row.text + " "
-                        print(row.text)
+                        #print(row.text)
                 elif count >= 3:
                     break    
                 count += 1
@@ -136,11 +154,11 @@ def scrape_page(soup):
         for row in soup.findAll(attrs={"class": date_re}):
             if "am" in row.text.lower() or "pm" in row.text.lower():
                     time += time + row.text
+                    data["Time"] = time
             try:
                 data["Date"] = str(parse(row.text).date())
             except:
-                pass
-        data["Time"] = time
+                pass    
         description = ""
         for row in soup.findAll("p"):
             if(len(row.text) >= 100):
@@ -149,7 +167,11 @@ def scrape_page(soup):
                 if count == 2:
                     data["Description"] = description
                     break
-        return data
+        if len(data) > 1:
+            return data
+        else:
+            print("Data empty, skipping")
+            return False
     else:
         print("Key not found, skipping")
 
@@ -158,6 +180,7 @@ def create_json():
     print("creating json...")
     with open('browser_event_data.json', 'w') as outfile:
         json.dump(OUTPUT, outfile)
+    #s3.Object('mjleontest', 'browser_event_data.json').put(Body=open('browser_event_data.json', 'rb'))
 
 def ofa_crawl(url):
     print(url)
@@ -194,7 +217,7 @@ def ofa_crawl(url):
             current_soup = BeautifulSoup(driver.page_source, "html.parser")
             for linebreak in current_soup.find_all('br'):
                 linebreak.extract()
-            OUTPUT[current_url] = OFAScraper.open_link(current_soup)
+            OUTPUT[current_url] = OFAScraper.open_link(current_soup, current_url)
             #SOUP.append(BeautifulSoup(driver.page_source, "html.parser"))
             driver.switch_to.window(driver.window_handles[0])
             print("Scraping reached end of page")

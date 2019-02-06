@@ -22,6 +22,6 @@ def main ():
     try:
         browserCrawler.main()
     except Exception as a:
-        print("Browser Crawler failed, please review. " + a)
+        print("Browser Crawler failed, please review. " + str(a))
 
 main()
