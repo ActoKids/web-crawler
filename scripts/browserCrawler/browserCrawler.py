@@ -41,6 +41,7 @@ def open_url(url):
 
     response = urllib.request.urlopen(url)
     soup = BeautifulSoup(response, "html.parser")
+    #Find all links and add them to the queue and found
     for row in soup.findAll("a"):
         if row.has_attr("href"):
             if row["href"] not in FOUND_LIST :
@@ -57,6 +58,7 @@ def open_url(url):
     except:
         print("No more pages found")
         print()
+    # Go through queue scraping each page found.
     while QUEUE:
         current_url = QUEUE.pop(0)
         print("Scraping for a new event...")
@@ -119,12 +121,14 @@ def scrape_page(soup, url):
                 "weakness",
                 "disadvantage"]
     key_found = False
+    #Check if keyword appears on the page before proceeding with scrape
     for key in keywords:
         if key in soup.find("body").text.lower():
             #print("SUCCESS found - " + key)
             #print()
             key_found = True
             break
+    #Extracts all relevent data to be inserted into the output list.
     if key_found:
         event_re = re.compile('.*event.*')
         price_re = re.compile('.*price.*')
@@ -145,7 +149,6 @@ def scrape_page(soup, url):
                 count += 1
             data["Location"] = location
         time = ""
-        # Extracts all relevant data from page
         for row in soup.findAll(attrs={"class": title_re}):
             #print(row.text)
             data["Title"] = row.text
@@ -182,6 +185,10 @@ def create_json():
         json.dump(OUTPUT, outfile)
     #s3.Object('mjleontest', 'browser_event_data.json').put(Body=open('browser_event_data.json', 'rb'))
 
+'''
+ofa_Crawl searches the page for javascript links (Anchor tags that simply call a javascript function)
+using Selenium
+'''
 def ofa_crawl(url):
     print(url)
     global QUEUE
@@ -195,6 +202,7 @@ def ofa_crawl(url):
     driver.get(url)
     soup = BeautifulSoup(driver.page_source, "html.parser")
     pages = 3
+    #Grabs all links on calendar
     while pages <= 3:
         for row in soup.find_all("div"):
             if row.get("onclick"):
@@ -203,6 +211,7 @@ def ofa_crawl(url):
         pages += 1
         x = driver.find_elements_by_class_name(jsQueue[0])
     count = 0
+    # Click all found elements to open page and grab the URL
     for row in x:
         row.click()
         driver.switch_to.window(driver.window_handles[1])
@@ -217,12 +226,14 @@ def ofa_crawl(url):
             current_soup = BeautifulSoup(driver.page_source, "html.parser")
             for linebreak in current_soup.find_all('br'):
                 linebreak.extract()
+            #Calls OFAScraper module to populate a dictionary object to add to the output
             OUTPUT[current_url] = OFAScraper.open_link(current_soup, current_url)
             #SOUP.append(BeautifulSoup(driver.page_source, "html.parser"))
             driver.switch_to.window(driver.window_handles[0])
             print("Scraping reached end of page")
         else:
             driver.switch_to.window(driver.window_handles[0])
+        #Count is used for test purposes only.
         #count += 1
         if count == 3:
             break
