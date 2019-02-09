@@ -13,7 +13,7 @@ The repository structure consists of two subfolders dedicated to different areaa
 To briefly explain the structure:
 
 * **configurations**  
-* **Scripts**
+* **scripts**
 
 
 ## Quickstart
