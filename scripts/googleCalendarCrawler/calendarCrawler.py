@@ -37,7 +37,7 @@ def main():
     if not events:
         print('No upcoming events found.')
     for event in events:
-       try:
+        try:
             OUTPUT[event['summary']] = {"Title": event['summary'], "Time": event['start'].get('dateTime'), "Date": event['start'].get('date'), "Location": event['location'], "Description": event['description'], "Email": email}
         except UnicodeEncodeError:
             print('Event data not found')
