@@ -17,7 +17,6 @@ from bs4 import BeautifulSoup
 import time
 from dateutil.parser import parse
 from datetime import datetime
-from . import OFAScraper
 import boto3
 
 
@@ -27,9 +26,6 @@ QUEUE = []
 OUTPUT = {}
 SOUP = []
 EVENT_BRITE = "https://www.eventbrite.com/d/wa--seattle/disability/?page=1"
-OFA = "https://outdoorsforall.org/events-news/calendar/"
-DESTINATION = [OFA, EVENT_BRITE]
-#DESTINATION = [EVENT_BRITE]
 #s3 = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 
 def open_url(url):
@@ -185,89 +181,14 @@ def create_json():
         json.dump(OUTPUT, outfile)
     #s3.Object('mjleontest', 'browser_event_data.json').put(Body=open('browser_event_data.json', 'rb'))
 
-'''
-ofa_Crawl searches the page for javascript links (Anchor tags that simply call a javascript function)
-using Selenium
-'''
-def ofa_crawl(url):
-    print(url)
-    global QUEUE
-    global FOUND_LIST
-    global SOUP
-    jsQueue = []
-    options = webdriver.ChromeOptions()
-    options.add_argument('headless')
-    options.add_argument("--log-level=3")
-    driver = webdriver.Chrome(chrome_options=options)
-    driver.get(url)
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-    pages = 3
-    #Grabs all links on calendar
-    while pages <= 3:
-        for row in soup.find_all("div"):
-            if row.get("onclick"):
-                jsQueue.append(row.get("class")[0])
-        #driver.find_element_by_xpath("//*[@id='main_cal']/tbody/tr/td/table/tbody/tr[1]/td[3]/a").click()
-        pages += 1
-        x = driver.find_elements_by_class_name(jsQueue[0])
-    count = 0
-    # Click all found elements to open page and grab the URL
-    for row in x:
-        row.click()
-        driver.switch_to.window(driver.window_handles[1])
-        if driver.current_url not in FOUND_LIST:
-            print()
-            print("Scraping for a new event...")
-            #QUEUE.append(driver.current_url)
-            FOUND_LIST.append(driver.current_url)
-            print("Links remaining - " + str(len(jsQueue)))
-            jsQueue.pop(0)
-            current_url = driver.current_url
-            current_soup = BeautifulSoup(driver.page_source, "html.parser")
-            for linebreak in current_soup.find_all('br'):
-                linebreak.extract()
-            #Calls OFAScraper module to populate a dictionary object to add to the output
-            OUTPUT[current_url] = OFAScraper.open_link(current_soup, current_url)
-            #SOUP.append(BeautifulSoup(driver.page_source, "html.parser"))
-            driver.switch_to.window(driver.window_handles[0])
-            print("Scraping reached end of page")
-        else:
-            driver.switch_to.window(driver.window_handles[0])
-        #Count is used for test purposes only.
-        #count += 1
-        if count == 3:
-            break
-    driver.quit()
 
 def main():
     start_time = time.time()
-    print("Crawler Started.")
-    count = 0
-    for url in DESTINATION:
-        if url == OFA:
-            while count != 5:
-                try:
-                    print("OFA Crawl Started.")
-                    #open_url(EVENT_BRITE)
-                    for url in DESTINATION:
-                        ofa_crawl(url)
-                        print("OFA Crawl Completed.")
-                        break
-                    break
-                except Exception as e:
-                    print("Error gathering URL data, " + str(e))
-                    if str(e) == "list index out of range":
-                        count += 1
-                        print("Retrying selenium...")
-                    else:
-                        break
-        else:
-            print("Typical Crawl Started.")
-            open_url(url)
-            print("Typical Crawl Completed.")
+    print("Browser Crawl Started.")
+    open_url(EVENT_BRITE)
+    print("Browser Crawl Completed.")
     create_json()
     elapsed_time = time.time() - start_time
-    print("Crawler Ended.")
     print(elapsed_time)
     
 if __name__ == '__main__':   
