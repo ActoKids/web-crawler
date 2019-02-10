@@ -9,6 +9,10 @@ install:
   - pip install facebook-sdk
   - pip install BeautifulSoup4
   - pip install --upgrade google-api-python-client
+  - pip install selenium
+  - pip install python-dateutil
+  - pip install DateTime
+  - pip install boto3
 script:
   - python scripts/crawler.py
 deploy:

@@ -7,6 +7,7 @@ NSC - AD440 CLOUD PRACTICIUM
 """
 from fbEventCrawler import fbEventCrawler
 from browserCrawler import browserCrawler
+from browserCrawler import OFAScraper
 from googleCalendarCrawler import calendarCrawler   
 
 def main ():
@@ -20,7 +21,7 @@ def main ():
         print("Google Calendar Crawler Failed")
     try:
         browserCrawler.main()
-    except:
-        print("Browser Crawler failed, please review.")
+    except Exception as a:
+        print("Browser Crawler failed, please review. " + str(a))
 
 main()
