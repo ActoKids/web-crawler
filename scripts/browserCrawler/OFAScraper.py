@@ -23,7 +23,6 @@ def open_link(current_soup, current_url):
 
 def find_title(soup):
     global OUTPUT
-    
     if soup.find(class_="header-theme"):
         title = soup.find(class_="header-theme").text
         OUTPUT["Title"] = title
@@ -33,16 +32,17 @@ def find_description(soup):
     global OUTPUT
     desc = soup.find("span", attrs={"class": "event-desc-theme"})
     #print(desc)
-    lol = ""
+    p_desc = ""
     loc = ""
     time = ""
+    #Look for all p elements to find description, ignore location and attempt to find time.
     for row in desc.findAll("p"):
         try:
             if "Export:" not in row.text:
                 if "location" in row.text.lower():
                    pass
                 else:
-                    lol = lol + row.text
+                    p_desc = p_desc + row.text
                 if ("pm" in row.text.lower() or "am" in row.text.lower()) and any(c.isdigit() for c in row.text):
                     #print(row.text)
                     time += row.text + " "
@@ -58,7 +58,7 @@ def find_description(soup):
             loc = re.sub("\r\n", "", row)
             find_location(loc)
             break
-    OUTPUT["Description"] = lol
+    OUTPUT["Description"] = p_desc
 
 def find_date(soup):
     global OUTPUT
