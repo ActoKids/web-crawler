@@ -17,7 +17,7 @@ script:
   - python scripts/crawler.py
 deploy:
   provider: lambda
-  role: arn:aws:iam::061431082068:role/NSC2019_Lambda-S2-and-Dynamo-Full
+  role: $AWS_LAMBDA_ROLE_ARN
   function_name: "web_crawler_development"
   region: "us-east-2"
   handler_name: "handler"
