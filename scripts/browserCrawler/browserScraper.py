@@ -115,13 +115,14 @@ def scrape_page(soup, url):
             except:
                 pass    
         description = ""
-        for row in soup.findAll("p"):
-            if(len(row.text) >= 100):
+        soup = soup.find(attrs={"class": "has-user-generated-content"})
+        for row in soup:
+            try:
                 description += description + row.text + " "
-                count += 1
-                if count == 2:
-                    data["Description"] = description
-                    break
+                data["Description"] = description 
+                break
+            except:
+                pass
         if len(data) > 1:
             return data
         else:
