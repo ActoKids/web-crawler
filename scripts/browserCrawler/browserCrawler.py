@@ -53,6 +53,7 @@ def open_url(url):
                     ("seattle" in row["href"] or "/e/" in row["href"]) and
                     row["href"] not in FOUND_LIST and
                     "login" not in row["href"]):
+                first_row = False
                 print("Found link - " + row["href"] + "\n")
                 FOUND_LIST.append(row["href"])
     if FIRST_PAGE:
