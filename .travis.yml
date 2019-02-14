@@ -13,12 +13,11 @@ install:
   - pip install python-dateutil
   - pip install DateTime
   - pip install boto3
-script:
-  - python scripts/crawler.py
+script: skip
 deploy:
   provider: lambda
-  role: arn:aws:iam::061431082068:role/NSC2019_Lambda-S2-and-Dynamo-Full
-  function_name: "web_crawler_development"
+  role: $AWS_LAMBDA_ROLE_ARN
+  function_name: "ak-crawler-env-lbd"
   region: "us-east-2"
   handler_name: "handler"
   runtime: "python3.6"
