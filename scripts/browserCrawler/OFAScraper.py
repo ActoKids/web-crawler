@@ -31,6 +31,7 @@ OUTPUT = {}
 DATA = {}
 SOUP = []
 OFA = "https://outdoorsforall.org/events-news/calendar/"
+DRIVER_PATH = r'C:\Users\daong\ActoKids\web-crawler\scripts\browserCrawler\chromedriver.exe'
 #s3 = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 
 
@@ -43,7 +44,7 @@ def ofa_crawl(url):
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
     options.add_argument("--log-level=3")
-    driver = webdriver.Chrome(r'C:\Users\daong\ActoKids\web-crawler\scripts\browserCrawler\chromedriver.exe')
+    driver = webdriver.Chrome(executable_path=DRIVER_PATH, chrome_options=options)
     driver.get(url)
     pages = 3
 
@@ -56,7 +57,7 @@ def ofa_crawl(url):
         # driver.find_element_by_xpath("//*[@id='main_cal']/tbody/tr/td/table/tbody/tr[1]/td[3]/a").click()
         pages -= 1
         x = driver.find_elements_by_class_name(jsQueue[0])
-    
+  
         # Click all found elements to open page and grab the URL
         for row in x:
             row.click()
