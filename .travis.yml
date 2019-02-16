@@ -3,23 +3,23 @@ python:
   - "3.6"
 cache: pip
 install:
-  - pip3 install --upgrade oauth2client
-  - pip install urllib3
-  - pip3 install requests
-  - pip install facebook-sdk
-  - pip install BeautifulSoup4
-  - pip install --upgrade google-api-python-client
-  - pip install selenium
-  - pip install python-dateutil
-  - pip install DateTime
   - pip install boto3
 script: skip
 deploy:
   provider: lambda
   role: $AWS_LAMBDA_ROLE_ARN
-  function_name: "ak-crawler-env-lbd"
+  function_name: "ak-crawler-travis-lbd"
   region: "us-east-2"
   handler_name: "handler"
   runtime: "python3.6"
   on:
     branch: dev
+  provider: lambda
+  role: $AWS_LAMBDA_ROLE_ARN
+  function_name: "ak-crawler-prod-lbd"
+  region: "us-east-2"
+  handler_name: "handler"
+  runtime: "python3.6"
+  on:
+    branch: master
+    
