@@ -31,8 +31,12 @@ def open_url(url):
     # Function opens a url, parses it with Beautifulsoup
     # Finds relevant links and adds them to the global QUEUE
     # Foundlist used to avoid duplicates
-    response = urllib.request.urlopen(url)
-    soup = BeautifulSoup(response, "html.parser")
+    try:
+        response = urllib.request.urlopen(url)
+        soup = BeautifulSoup(response, "html.parser")
+        print("Opening " + url + "; success")
+    except:
+        print("Opening " + url + "; failed")
     #Find all links and add them to the queue and found
     first_row = True        
     for row in soup.findAll("a", {"href" : True}):
@@ -41,7 +45,6 @@ def open_url(url):
                     ("seattle" in row["href"] or "/e/" in row["href"]) and
                     "login" not in row["href"]):            
                 if first_row and (row["href"] == FOUND_LIST[0]) :
-                    print("List is up to date" + "\n")
                     FIRST_PAGE = False
                     break
                 else:
@@ -54,7 +57,7 @@ def open_url(url):
                     row["href"] not in FOUND_LIST and
                     "login" not in row["href"]):
                 first_row = False
-                print("Found link - " + row["href"] + "\n")
+                print("Found link " + row["href"])
                 FOUND_LIST.append(row["href"])
     if FIRST_PAGE:
         FIRST_PAGE = False
@@ -80,34 +83,22 @@ def get_soup(url):
     return soup
 
 def create_json():
-    print("creating json...")
     with open('browser_URL_data.json', 'w') as outfile:
         json.dump(FOUND_LIST, outfile)
     #s3.Object('mjleontest', 'browser_event_data.json').put(Body=open('browser_event_data.json', 'rb'))
 
 
 def main():
-    start_time = time.time()
+    print("Starting browser crawler; " + str(datetime.now()))
     global FOUND_LIST
     try:
         with open('browser_URL_data.json') as data:
             FOUND_LIST = json.load(data)
     except:
-        pass
-    print("Starting Browser Crawler" + "\n")
+        pass 
     open_url(EVENT_BRITE)
-    print("Ending Browser Crawler")
     create_json()
-    elapsed_time = time.time() - start_time
-    print(elapsed_time)
-
-    start_time = time.time()
-    print("Starting Browser Scraper" + "\n")
-    browserScraper.process_data()
-    print("Ending Browser Scraper" + "\n")
-    elapsed_time = time.time() - start_time
-    print(elapsed_time)
-    
+    print("Closing browser crawler; " + str(datetime.now()))
 if __name__ == '__main__':   
     main()
     

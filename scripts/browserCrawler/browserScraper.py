@@ -25,16 +25,18 @@ def process_data():
     queue = get_url()
     while queue:
         current_url = queue.pop(0)
-        print("Scraping page " + current_url)
-        print("URL's remaining in queue - " + str(len(queue)))
         try:       
+            print("Connecting to " + current_url + "; success")
             inner_soup = get_soup(current_url)
             data = scrape_page(inner_soup, current_url)
             if data:
+                print("Scraping finished " + current_url + "; success")
                 OUTPUT[current_url] = data
-        except Exception as a:
-            print("url failed " + str(a))
-        print("Scraping finished")
+            else:
+                print("Scraping finished " + current_url + "; failed")
+        except:
+            print("Connecting to " + current_url + "; failed")
+        print(str(len(queue)) + " remain")
     create_json()
 
 def get_url():
@@ -48,7 +50,6 @@ def get_soup(url):
     return soup
 
 def create_json():
-    print("creating json...")
     with open('browser_event_data.json', 'w') as outfile:
         json.dump(OUTPUT, outfile)
     #s3.Object('mjleontest', 'browser_event_data.json').put(Body=open('browser_event_data.json', 'rb'))
@@ -126,17 +127,16 @@ def scrape_page(soup, url):
         if len(data) > 1:
             return data
         else:
-            print("Data empty, skipping")
             return False
         if soup.find(attrs={"class": "js-display-price"}):
             data["Price"] = soup.find(attrs={"class": "js-display-price"})
         else:
             data["Price"] = "Unknown"
-    else:
-        print("Key not found, skipping")
 
 def main():
+    print("Starting browser scraper; " + str(datetime.now()))
     process_data()
+    print("Closing browser scraper; " + str(datetime.now()))
 
 if __name__ == '__main__':   
     main()
