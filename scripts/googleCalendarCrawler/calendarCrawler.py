@@ -11,17 +11,13 @@ from oauth2client import file, client, tools
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-OUTPUT = {}
+OUTPUT = {} #Instantiate an empty OUTPUT JSON object
 
 def create_json():
     with open('calendar_event_data.json', 'w') as outfile:
         json.dump(OUTPUT, outfile)
 
-
 def main():
-    """Shows basic usage of the Google Calendar API.
-    Prints the start and name of the next 10 events on the user's calendar.
-    """
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -45,33 +41,42 @@ def main():
 
     # Call the Calendar API
     now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    print('Getting the upcoming 100 events')
-    events_result = service.events().list(calendarId='primary', timeMin=now,
-                                        maxResults=100, singleEvents=True,
-                                        orderBy='startTime').execute()
-    events = events_result.get('items', [])
+    
+    events_result = service.events().list(calendarId='ejohnson98396@gmail.com', timeMin=now, maxResults=100, singleEvents=True, orderBy='startTime').execute() 
+    # creates a list of event objects from a particular calendar, specified by id
+    # Does not show every occurence of a recurring event, just the most recent one
+    # Max results of 100 individual events
+
+    # user_calendars = service.calendarList().list(syncToken=None, minAccessRole=None, maxResults=None, showDeleted=None, showHidden=None, pageToken=None).execute()
+    ### Output shows all calendars on the users account and their info, like the id called for events_result
+    
+    events = events_result.get('items', []) 
+    # Instantiates an event object to be used for parsing
+
+    print('Starting GoogleCalendar crawler; ', datetime.datetime.now())
+
+    if len([events]) > 0:
+        print('Opening calendars: Success')
+        # If calendar has objects run the program
+    if len([events]) < 1:
+        print('Opening calendars: Fail')
+        quit()
+        # If calendar is empty kill the program
 
     if not events:
-        print('No upcoming events found.')
+        print('No upcoming events found.') 
+        # If events is empty, script will not run
     for event in events:
-        email = event['creator'].get('email', event['creator'].get('email'))
         try:
-            OUTPUT[event['summary']] = {"Title": event['summary'], "Time": event['start'].get('dateTime'), "Date": event['start'].get('date'), "Location": event['location'], "Description": event['description'], "Email": email}
-            # Output goes to a JSON file called calendar_event_data.json
-            # Tested by Michael Leon
-            # He tested the output of the code. Most of the data was unstructured but the 'Title', Time', 'Date', and 'Location' we consistently accurate. The 'Description' often had these other fields included.
-            # The 'Email' was associated with the email of the current calendar, so adding all the calendars together created a single email for this field.
-        except UnicodeEncodeError:
-            print('Event data not found')
-            # Much of the data is not encoded in 'UTF-8', which throws this error.
+            OUTPUT[event['summary']] = {"Title": event['summary'], 'Description': event['description'], 'Email': event['organizer'].get('email'), 'Date': event['start'].get('date'), 'Start Time': event['start'].get('dateTime'), 'End Time': event['end'].get('dateTime'), 'Status': event['status'], 'Location': event['location'], 'URL': event['htmlLink']}
+            # Creates a JSON object of event and its details
         except KeyError:
-            print('Event data not published')
-            # KeyError happens if one of the fields is unpublished (usually the location).
-
+            OUTPUT[event['summary']] = {"Title": event['summary'], 'Description': event['description'], 'Email': event['organizer'].get('email'), 'Date': event['start'].get('date'), 'Start Time': event['start'].get('dateTime'), 'End Time': event['end'].get('dateTime'), 'Status': event['status'], 'Location': 'null', 'URL': event['htmlLink']}
+            # If location data is unusable, default to null
+            # Will later search in the description for a location, or leave this field null if location cannot be found
+            
     create_json()
-    print(json.dumps(OUTPUT, indent=4, sort_keys=True))
-    # Printing is for testing purposes, will not be the final version.
-    print("Google Calendar Crawler Completed.")
+    print("Closing GoogleCalendar crawler; ", datetime.datetime.now())
 
 if __name__ == '__main__':
     main()
