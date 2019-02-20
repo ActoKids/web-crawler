@@ -40,7 +40,7 @@ def process_data():
     create_json()
 
 def get_url():
-    with open('browser_URL_data.json') as data:
+    with open('eventBrite_URL_data.json') as data:
         queue = json.load(data)
     return queue  
 
@@ -50,7 +50,7 @@ def get_soup(url):
     return soup
 
 def create_json():
-    with open('browser_event_data.json', 'w') as outfile:
+    with open('eventBrite_event_data.json', 'w') as outfile:
         json.dump(OUTPUT, outfile)
     #s3.Object('mjleontest', 'browser_event_data.json').put(Body=open('browser_event_data.json', 'rb'))
     

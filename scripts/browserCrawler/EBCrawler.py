@@ -15,8 +15,6 @@ import time
 from dateutil.parser import parse
 from datetime import datetime
 import boto3
-import browserScraper
-
 
 # This script scrapes a website and pulls specific data.
 FOUND_LIST = []
@@ -83,7 +81,7 @@ def get_soup(url):
     return soup
 
 def create_json():
-    with open('browser_URL_data.json', 'w') as outfile:
+    with open('eventBrite_URL_data.json', 'w') as outfile:
         json.dump(FOUND_LIST, outfile)
     #s3.Object('mjleontest', 'browser_event_data.json').put(Body=open('browser_event_data.json', 'rb'))
 
@@ -92,7 +90,7 @@ def main():
     print("Starting browser crawler; " + str(datetime.now()))
     global FOUND_LIST
     try:
-        with open('browser_URL_data.json') as data:
+        with open('eventBrite_URL_data.json') as data:
             FOUND_LIST = json.load(data)
     except:
         pass 
