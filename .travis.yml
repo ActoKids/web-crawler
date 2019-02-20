@@ -17,7 +17,7 @@ script: skip
 deploy:
   provider: lambda
   role: $AWS_LAMBDA_ROLE_ARN
-  function_name: "ak-crawler-env-lbd"
+  function_name: "ak-crawler-dev-lbd"
   region: "us-east-2"
   handler_name: "handler"
   runtime: "python3.6"
