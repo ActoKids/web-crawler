@@ -49,6 +49,7 @@ def ofa_crawl(url):
     # Grab all links on calendar for 3 months from current month
     print()
     print("Starting browser scraper; " + str(datetime.now()))
+
     while pages <= 3:
         jsQueue = []
         
@@ -61,12 +62,16 @@ def ofa_crawl(url):
                     driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
                     break
                 except Exception as e:
-                    print("Error gathering URL data, " + str(e))
-                    if str(e):
-                        count += 1
-                        print("Retrying selenium...")
-                    else:
-                        break
+                    print("Error opening the next page, " + str(e))
+                    count += 1
+                    print("Retrying selenium...")
+                    driver.quit
+                    options = webdriver.ChromeOptions()
+                    options.add_argument('headless')
+                    options.add_argument("--log-level=3")
+                    driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
+                    driver.get(url)
+                  
             
         # set selenium to click to the month after next month
         elif pages == 3:
@@ -78,12 +83,16 @@ def ofa_crawl(url):
                     driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
                     break
                 except Exception as e:
-                    print("Error gathering URL data, " + str(e))
-                    if str(e):
-                        count += 1
-                        print("Retrying selenium...")
-                    else:
-                        break
+                    print("Error opening the next page, " + str(e))
+                    count += 1
+                    print("Retrying selenium...")
+                    driver.quit
+                    options = webdriver.ChromeOptions()
+                    options.add_argument('headless')
+                    options.add_argument("--log-level=3")
+                    driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
+                    driver.get(url)
+                 
 
         print()
         print("Scrapping page: " + str(pages) +"...")
