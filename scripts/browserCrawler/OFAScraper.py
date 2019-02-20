@@ -47,30 +47,34 @@ def ofa_crawl(url):
     options.add_argument("--log-level=3")
     driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
     pages = 1
-    quece_copy = []
 
     # Grab all links on calendar for 3 months from current month
     print()
-    print("Starting browser scraper; " + str(datetime.now()))
+    print("Starting OFA Crawler; " + str(datetime.now()))
 
     while pages <= 3:
         jsQueue = []
-        driver.get(url)     
+        if pages == 1:
+            try:
+                driver.get(url)
+                print()
+                print("Connecting to " + url + "; success") 
+            except:
+                print()
+                print("Connecting to " + url + "; failed")  
             
         # set selenium to click to the next month from current calendar month
-        if pages == 2:      
+        if pages == 2:  
+            driver.get(url)    
             driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
              
         # set selenium to click to the month after next month
         elif pages == 3:
+            driver.get(url)
             driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
             time.sleep(2)
             driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
             
-
-        print()
-        print("Scrapping page: " + str(pages) +"...")
-
         # parse the pages and add all links found to a list
         soup = BeautifulSoup(driver.page_source, "html.parser")  
         for row in soup.find_all("div"):
@@ -92,13 +96,7 @@ def ofa_crawl(url):
                 if row.get("onclick"):
                     jsQueue.append(row.get("class")[0])
             x = driver.find_elements_by_class_name(jsQueue[0])
-                  
-  
-        quece_copy = x
-        link_count = len(x)
-        print(str(link_count) + " Links found")
-     
-        
+                      
         # Click all found elements to open page and grab the URL
         for row in x:
             row.click()
@@ -117,32 +115,23 @@ def ofa_crawl(url):
                     linebreak.extract()
                 # Calls OFAScraper module to populate a dictionary object to add to the output
                 OUTPUT[current_url] = open_link(current_soup, current_url)
-                print(str(link_count - 1) + " remain") 
                 driver.switch_to.window(driver.window_handles[0])
 
             else:
                 driver.switch_to.window(driver.window_handles[0])
-           
-            link_count -=1
+
         pages += 1
     driver.quit()
 
 # This open work on the data from each link, call for helpers to get additional data
 # return data and status
 def open_link(current_soup, current_url):
-    data = {}
-    try:       
-        print("Connecting to " + current_url + "; success")
-        data["URL"] = current_url
-        find_title(current_soup, data)
-        find_date(current_soup, data)
-        if data:
-            print("Scraping finished " + current_url + "; success")
-            return data
-        else:
-            print("Scraping finished " + current_url + "; failed")
-    except:
-        print("Connecting to " + current_url + "; failed")
+    data = {}    
+    print("Found link " + current_url)
+    data["URL"] = current_url
+    find_title(current_soup, data)
+    find_date(current_soup, data)
+    return data
 
 # This function to get the title of each event from link
 def find_title(soup, data):
@@ -225,7 +214,7 @@ def main():
                 break
 
     create_json()
-    print("Closing browser scraper; " + str(datetime.now()))
+    print("Closing OFA Crawler; " + str(datetime.now()))
 
 
 if __name__ == '__main__':
