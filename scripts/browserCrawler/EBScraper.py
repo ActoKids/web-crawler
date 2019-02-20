@@ -26,17 +26,17 @@ def process_data():
     while queue:
         current_url = queue.pop(0)
         try:       
-            print("Connecting to " + current_url + "; success")
+            print("Connecting to " + current_url + "; success" + "\n")
             inner_soup = get_soup(current_url)
             data = scrape_page(inner_soup, current_url)
             if data:
-                print("Scraping finished " + current_url + "; success")
+                print("Scraping finished " + current_url + "; success" + "\n")
                 OUTPUT[current_url] = data
             else:
-                print("Scraping finished " + current_url + "; failed")
+                print("Scraping finished " + current_url + "; failed" + "\n")
         except:
-            print("Connecting to " + current_url + "; failed")
-        print(str(len(queue)) + " remain")
+            print("Connecting to " + current_url + "; failed" + "\n")
+        print(str(len(queue)) + " remain" + "\n")
     create_json()
 
 def get_url():
@@ -134,9 +134,9 @@ def scrape_page(soup, url):
             data["Price"] = "Unknown"
 
 def main():
-    print("Starting browser scraper; " + str(datetime.now()))
+    print("Starting browser scraper; " + str(datetime.now()) + "\n")
     process_data()
-    print("Closing browser scraper; " + str(datetime.now()))
+    print("Closing browser scraper; " + str(datetime.now()) + "\n")
 
 if __name__ == '__main__':   
     main()

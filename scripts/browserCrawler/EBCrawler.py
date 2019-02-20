@@ -32,9 +32,9 @@ def open_url(url):
     try:
         response = urllib.request.urlopen(url)
         soup = BeautifulSoup(response, "html.parser")
-        print("Opening " + url + "; success")
+        print("Opening " + url + "; success" + "\n")
     except:
-        print("Opening " + url + "; failed")
+        print("Opening " + url + "; failed" + "\n")
     #Find all links and add them to the queue and found
     first_row = True        
     for row in soup.findAll("a", {"href" : True}):
@@ -55,7 +55,7 @@ def open_url(url):
                     row["href"] not in FOUND_LIST and
                     "login" not in row["href"]):
                 first_row = False
-                print("Found link " + row["href"])
+                print("Found link " + row["href"] + "\n")
                 FOUND_LIST.append(row["href"])
     if FIRST_PAGE:
         FIRST_PAGE = False
@@ -87,7 +87,7 @@ def create_json():
 
 
 def main():
-    print("Starting browser crawler; " + str(datetime.now()))
+    print("Starting browser crawler; " + str(datetime.now()) + "\n")
     global FOUND_LIST
     try:
         with open('eventBrite_URL_data.json') as data:
@@ -96,7 +96,7 @@ def main():
         pass 
     open_url(EVENT_BRITE)
     create_json()
-    print("Closing browser crawler; " + str(datetime.now()))
+    print("Closing browser crawler; " + str(datetime.now()) + "\n")
 if __name__ == '__main__':   
     main()
     
