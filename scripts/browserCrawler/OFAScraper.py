@@ -55,13 +55,36 @@ def ofa_crawl(url):
         driver.get(url)
         # set selenium to click to the next month from current calendar month
         if pages == 2: 
-            driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
+            count = 0
+            while count != 5:
+                try:
+                    driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
+                    break
+                except Exception as e:
+                    print("Error gathering URL data, " + str(e))
+                    if str(e):
+                        count += 1
+                        print("Retrying selenium...")
+                    else:
+                        break
             
         # set selenium to click to the month after next month
         elif pages == 3:
-            driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
-            time.sleep(1)
-            driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
+            count = 0
+            while count != 5:
+                try:
+                    driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
+                    time.sleep(1)
+                    driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
+                    break
+                except Exception as e:
+                    print("Error gathering URL data, " + str(e))
+                    if str(e):
+                        count += 1
+                        print("Retrying selenium...")
+                    else:
+                        break
+
         print()
         print("Scrapping page: " + str(pages) +"...")
 
