@@ -64,7 +64,7 @@ def ofa_crawl(url):
         # set selenium to click to the month after next month
         elif pages == 3:
             driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
-            time.sleep(1)
+            time.sleep(2)
             driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
             
 
@@ -80,7 +80,13 @@ def ofa_crawl(url):
         x = driver.find_elements_by_class_name(jsQueue[0])
 
         # to refresh the elements and retrieve them on the current page
-        if pages >= 2 :          
+        if pages >= 2 :       
+            soup = BeautifulSoup(driver.page_source, "html.parser")  
+            for row in soup.find_all("div"):
+                if row.get("onclick"):
+                    jsQueue.append(row.get("class")[0])
+            x = driver.find_elements_by_class_name(jsQueue[0])
+
             soup = BeautifulSoup(driver.page_source, "html.parser")  
             for row in soup.find_all("div"):
                 if row.get("onclick"):
