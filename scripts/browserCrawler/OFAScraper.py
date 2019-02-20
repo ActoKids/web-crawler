@@ -19,6 +19,8 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import selenium.webdriver.chrome.service as service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import time
 from dateutil.parser import parse
@@ -45,6 +47,7 @@ def ofa_crawl(url):
     options.add_argument("--log-level=3")
     driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
     pages = 1
+    quece_copy = []
 
     # Grab all links on calendar for 3 months from current month
     print()
@@ -52,61 +55,40 @@ def ofa_crawl(url):
 
     while pages <= 3:
         jsQueue = []
-        
-        driver.get(url)
-        # set selenium to click to the next month from current calendar month
-        if pages == 2: 
-            count = 0
-            while count != 5:
-                try:
-                    driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
-                    break
-                except Exception as e:
-                    print("Error opening the next page, " + str(e))
-                    count += 1
-                    print("Retrying selenium...")
-                    driver.quit
-                    options = webdriver.ChromeOptions()
-                    options.add_argument('headless')
-                    options.add_argument("--log-level=3")
-                    driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
-                    driver.get(url)
-                  
+        driver.get(url)     
             
+        # set selenium to click to the next month from current calendar month
+        if pages == 2:      
+            driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
+             
         # set selenium to click to the month after next month
         elif pages == 3:
-            count = 0
-            while count != 5:
-                try:
-                    driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
-                    time.sleep(1)
-                    driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
-                    break
-                except Exception as e:
-                    print("Error opening the next page, " + str(e))
-                    count += 1
-                    print("Retrying selenium...")
-                    driver.quit
-                    options = webdriver.ChromeOptions()
-                    options.add_argument('headless')
-                    options.add_argument("--log-level=3")
-                    driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
-                    driver.get(url)
-                 
+            driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
+            time.sleep(1)
+            driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
+            
 
         print()
         print("Scrapping page: " + str(pages) +"...")
 
         # parse the pages and add all links found to a list
-        soup = BeautifulSoup(driver.page_source, "html.parser")
+        soup = BeautifulSoup(driver.page_source, "html.parser")  
         for row in soup.find_all("div"):
             if row.get("onclick"):
                 jsQueue.append(row.get("class")[0])
-        
-        pages += 1
-        
-        
+    
         x = driver.find_elements_by_class_name(jsQueue[0])
+
+        # to refresh the elements and retrieve them on the current page
+        if pages >= 2 :          
+            soup = BeautifulSoup(driver.page_source, "html.parser")  
+            for row in soup.find_all("div"):
+                if row.get("onclick"):
+                    jsQueue.append(row.get("class")[0])
+            x = driver.find_elements_by_class_name(jsQueue[0])
+                  
+  
+        quece_copy = x
         link_count = len(x)
         print(str(link_count) + " Links found")
      
@@ -136,6 +118,7 @@ def ofa_crawl(url):
                 driver.switch_to.window(driver.window_handles[0])
            
             link_count -=1
+        pages += 1
     driver.quit()
 
 # This open work on the data from each link, call for helpers to get additional data
