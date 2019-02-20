@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+Created on 02/17/2019
+NSC - AD440 CLOUD PRACTICIUM
+@author: Dao Nguyen
+
+"""
+
 import urllib.request
 import re
 import os
@@ -21,10 +29,7 @@ ADDRESS = ['Renton: Lindbergh HS Pool: 16740 128th Ave SE Renton, WA 98058',
            'Hazen High School: 1101 Hoquiam Ave NE Renton, WA 98059 425-204-4230']
 #This script scrapes a website and pulls specific data.
 def main():
-    p_desc = ""
-    loc = ""
-   
-    fmts = ('%Y','%b %d, %Y','%b %d, %Y','%B %d, %Y','%B %d %Y','%m/%d/%Y','%m/%d/%y','%b %Y','%B%Y','%b %d,%Y')
+ 
     source = urllib.request.urlopen('http://www.shadowsealsswimming.org/Calendar.html').read()
     soup = bs.BeautifulSoup(source,'html.parser')
 
@@ -58,7 +63,7 @@ def main():
                     new_date_string = new_date_string + find_date[0] + ' ' + \
                         str(x) + ' ' + find_date[2].strip('\n')
 
-                    date_object = validate(new_date_string)
+                    date_object = validate_date(new_date_string)
                     if date_object:
                         data["Date"] = date_object.strftime(
                             '%Y-%m-%d %H:%M:%S')
@@ -79,7 +84,7 @@ def main():
                     OUTPUT.append(data)
 
             else:
-                date_object = validate(date_string)
+                date_object = validate_date(date_string)
                 if date_object:
                     data["Date"] = date_object.strftime(
                         '%Y-%m-%d %H:%M:%S')
@@ -114,7 +119,8 @@ def create_json():
         json.dump(OUTPUT, outfile)
     #s3.Object('mjleontest', 'browser_event_data.json').put(Body=open('browser_event_data.json', 'rb'))
 
-def validate(date_text):
+# This function to check the date in string and return if date is valid or not
+def validate_date(date_text):
     date_string = date_text
     new_date_string = ""
     fmts = ('%Y','%b %d, %Y','%b %d, %Y','%B %d, %Y','%B %d %Y','%m/%d/%Y','%m/%d/%y','%b %Y','%B%Y','%b %d,%Y', '%b %d %Y')
@@ -126,7 +132,6 @@ def validate(date_text):
             set_month = find_month
             new_date_string += set_month + ' ' + date_string[1] + ' ' + date_string[2]
 
-    
     for fmt in fmts:
         try:
             t = dt.datetime.strptime(new_date_string, fmt)

@@ -6,6 +6,7 @@ NSC - AD440 CLOUD PRACTICIUM
 
 Changed ownership on 02/09/2019
 @author: Dao Nguyen
+Last edited by Dao Nguyen 02/19/2019
 
 """
 
@@ -32,12 +33,10 @@ OUTPUT = {}
 DATA = {}
 SOUP = []
 OFA = "https://outdoorsforall.org/events-news/calendar/"
-DRIVER_PATH = r'C:\Users\daong\ActoKids\web-crawler\scripts\browserCrawler\chromedriver.exe'
 #s3 = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 
 
 def ofa_crawl(url):
-    #print(url)
     global QUEUE
     global FOUND_LIST
     global SOUP
@@ -45,31 +44,33 @@ def ofa_crawl(url):
     options.add_argument('headless')
     options.add_argument("--log-level=3")
     driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
-    
-    #driver = webdriver.Chrome(executable_path=DRIVER_PATH, chrome_options=options)
     pages = 1
 
-    # Grabs all links on calendar for 3 months from current month
+    # Grab all links on calendar for 3 months from current month
+    print()
+    print("Starting browser scraper; " + str(datetime.now()))
     while pages <= 3:
         jsQueue = []
         
         driver.get(url)
-        # scrape next month from current calendar month
+        # set selenium to click to the next month from current calendar month
         if pages == 2: 
             driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
             
-        # scrape the month after next month
+        # set selenium to click to the month after next month
         elif pages == 3:
             driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
             time.sleep(1)
             driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
-        
+        print()
         print("Scrapping page: " + str(pages) +"...")
+
+        # parse the pages and add all links found to a list
         soup = BeautifulSoup(driver.page_source, "html.parser")
         for row in soup.find_all("div"):
             if row.get("onclick"):
                 jsQueue.append(row.get("class")[0])
-        # driver.find_element_by_xpath("//*[@id='main_cal']/tbody/tr/td/table/tbody/tr[1]/td[3]/a").click()
+        
         pages += 1
         
         
@@ -82,10 +83,11 @@ def ofa_crawl(url):
         for row in x:
             row.click()
             driver.switch_to.window(driver.window_handles[1])
+
+            # check for links that previously found from the previous month, if not found 
+            # add to list
             if driver.current_url not in FOUND_LIST:
-                #print()
-                #print("Scraping for a new event...")
-                # QUEUE.append(driver.current_url)
+ 
                 FOUND_LIST.append(driver.current_url)
                 
                 jsQueue.pop(0)
@@ -96,17 +98,16 @@ def ofa_crawl(url):
                 # Calls OFAScraper module to populate a dictionary object to add to the output
                 OUTPUT[current_url] = open_link(current_soup, current_url)
                 print(str(link_count - 1) + " remain") 
-                #SOUP.append(BeautifulSoup(driver.page_source, "html.parser"))
                 driver.switch_to.window(driver.window_handles[0])
-                #print("Scraping reached end of page")
+
             else:
                 driver.switch_to.window(driver.window_handles[0])
-            # Count is used for test purposes only.
+           
             link_count -=1
-
     driver.quit()
 
-
+# This open work on the data from each link, call for helpers to get additional data
+# return data and status
 def open_link(current_soup, current_url):
     data = {}
     try:       
@@ -122,8 +123,7 @@ def open_link(current_soup, current_url):
     except:
         print("Connecting to " + current_url + "; failed")
 
-
-
+# This function to get the title of each event from link
 def find_title(soup, data):
     if soup.find(class_="header-theme"):
         title = soup.find(class_="header-theme").text
@@ -132,10 +132,9 @@ def find_title(soup, data):
         data["Title"] = title
         find_description(soup, data)
 
-
+# This function to get the description of each event from link
 def find_description(soup, data):
     desc = soup.find("span", attrs={"class": "event-desc-theme"})
-    # print(desc)
     p_desc = ""
     loc = ""
     time = ""
@@ -148,9 +147,7 @@ def find_description(soup, data):
                 else:
                     p_desc = p_desc + row.text
                 if ("pm" in row.text.lower() or "am" in row.text.lower()) and any(c.isdigit() for c in row.text):
-                    # print(row.text)
                     time += row.text + " "
-                # print(row.text)
         except:
             pass
     if time != "":
@@ -164,7 +161,7 @@ def find_description(soup, data):
             break
     data["Description"] = p_desc
 
-
+#This function to get the date from each event from link
 def find_date(soup, data):
     header_re = re.compile('.*header.*')
     for row in soup.findAll(attrs={"class": header_re}):
@@ -174,7 +171,6 @@ def find_date(soup, data):
                     data["Date"] = str(parse(val))
                     break
         except Exception as a:
-            # print(a)
             pass
         try:
             if "pm" in str(row.lower()) or "am" in str(row.lower()):
@@ -182,28 +178,22 @@ def find_date(soup, data):
         except:
             pass
 
-
+# This function to get the location of each event from link
 def find_location(location, data):
     data["Location"] = location.replace('\n', '').replace('\t', '')
     # print(OUTPUT)W
 
-
+# This function to create a json file
 def create_json():
-    #print("creating json...")
     with open('OFA_event_data.json', 'w') as outfile:
         json.dump(OUTPUT, outfile)
-    #s3.Object('mjleontest', 'browser_event_data.json').put(Body=open('browser_event_data.json', 'rb'))
 
-
+# Main function
 def main():
-    print("Starting browser scraper; " + str(datetime.now()))
     count = 0
     while count != 5:
         try:
-            #print("OFA Crawl Started.")
-            # open_url(EVENT_BRITE)
             ofa_crawl(OFA)
-            #print("OFA Crawl Completed.")
             break
         except Exception as e:
             print("Error gathering URL data, " + str(e))
