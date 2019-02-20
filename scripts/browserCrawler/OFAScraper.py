@@ -57,11 +57,9 @@ def ofa_crawl(url):
         if pages == 1:
             try:
                 driver.get(url)
-                print()
-                print("Connecting to " + url + "; success") 
+                print("\nConnecting to " + url + "; success\n") 
             except:
-                print()
-                print("Connecting to " + url + "; failed")  
+                print("\nConnecting to " + url + "; failed\n")  
             
         # set selenium to click to the next month from current calendar month
         if pages == 2:  
@@ -214,7 +212,7 @@ def main():
                 break
 
     create_json()
-    print("Closing OFA Crawler; " + str(datetime.now()))
+    print("\nClosing OFA Crawler; " + str(datetime.now()))
 
 
 if __name__ == '__main__':
