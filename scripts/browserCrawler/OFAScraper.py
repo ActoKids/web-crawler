@@ -64,13 +64,15 @@ def ofa_crawl(url):
         # set selenium to click to the next month from current calendar month
         if pages == 2:  
             driver.get(url)    
+            time.sleep(1)
             driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
              
         # set selenium to click to the month after next month
         elif pages == 3:
             driver.get(url)
+            time.sleep(1)
             driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
-            time.sleep(2)
+            time.sleep(1)
             driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
             
         # parse the pages and add all links found to a list
@@ -82,18 +84,16 @@ def ofa_crawl(url):
         x = driver.find_elements_by_class_name(jsQueue[0])
 
         # to refresh the elements and retrieve them on the current page
-        if pages >= 2 :       
-            soup = BeautifulSoup(driver.page_source, "html.parser")  
-            for row in soup.find_all("div"):
-                if row.get("onclick"):
-                    jsQueue.append(row.get("class")[0])
-            x = driver.find_elements_by_class_name(jsQueue[0])
-
-            soup = BeautifulSoup(driver.page_source, "html.parser")  
-            for row in soup.find_all("div"):
-                if row.get("onclick"):
-                    jsQueue.append(row.get("class")[0])
-            x = driver.find_elements_by_class_name(jsQueue[0])
+        if pages >= 2 :  
+            time.sleep(1)  
+            count = 0   
+            while count != 5:
+                soup = BeautifulSoup(driver.page_source, "html.parser")  
+                for row in soup.find_all("div"):
+                    if row.get("onclick"):
+                        jsQueue.append(row.get("class")[0])
+                x = driver.find_elements_by_class_name(jsQueue[0])
+                count += 1
                       
         # Click all found elements to open page and grab the URL
         for row in x:
