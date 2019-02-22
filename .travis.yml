@@ -6,20 +6,20 @@ install:
   - pip install boto3
 script: skip
 deploy:
-  provider: lambda
-  role: $AWS_LAMBDA_ROLE_ARN
-  function_name: "ak-crawler-dev-lbd"
-  region: "us-east-2"
-  handler_name: "handler"
-  runtime: "python3.6"
-  on:
-    branch: dev
-  provider: lambda
-  role: $AWS_LAMBDA_ROLE_ARN
-  function_name: "ak-crawler-prod-lbd"
-  region: "us-east-2"
-  handler_name: "handler"
-  runtime: "python3.6"
-  on:
-    branch: prod
+  - provider: lambda
+    role: $AWS_LAMBDA_ROLE_ARN_DEV
+    function_name: "ak-crawler-dev-lbd"
+    region: "us-east-2"
+    handler_name: "handler"
+    runtime: "python3.6"
+    on:
+      branch: dev
+  - provider: lambda
+    role: $AWS_LAMBDA_ROLE_ARN_PROD
+    function_name: "ak-crawler-prod-lbd"
+    region: "us-east-2"
+    handler_name: "handler"
+    runtime: "python3.6"
+    on:
+      branch: prod
     
