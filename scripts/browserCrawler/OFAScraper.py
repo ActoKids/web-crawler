@@ -21,6 +21,7 @@ import selenium.webdriver.chrome.service as service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 import time
 from dateutil.parser import parse
@@ -45,7 +46,7 @@ def ofa_crawl(url):
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
     options.add_argument("--log-level=3")
-    driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
+    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
     pages = 1
 
     # Grab all links on calendar for 3 months from current month
@@ -63,15 +64,12 @@ def ofa_crawl(url):
             
         # set selenium to click to the next month from current calendar month
         if pages == 2:  
-            driver.get(url)    
-            time.sleep(1)
-            driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
-             
+            driver.get(url)
+            WebDriverWait(driver, 1).until(EC.element_to_be_clickable((By.XPATH, "//a[img[@alt='Forward']]"))).click()    
         # set selenium to click to the month after next month
         elif pages == 3:
             driver.get(url)
-            time.sleep(1)
-            driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
+            WebDriverWait(driver, 1).until(EC.element_to_be_clickable((By.XPATH, "//a[img[@alt='Forward']]"))).click()
             time.sleep(1)
             driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
             
@@ -85,7 +83,7 @@ def ofa_crawl(url):
 
         # to refresh the elements and retrieve them on the current page
         if pages >= 2 :  
-            time.sleep(1)  
+            time.sleep(0.45)  
             count = 0   
             while count != 5:
                 soup = BeautifulSoup(driver.page_source, "html.parser")  
