@@ -46,12 +46,14 @@ def ofa_crawl(url):
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
     options.add_argument("--log-level=3")
+
     driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
     pages = 1
 
     # Grab all links on calendar for 3 months from current month
     print()
     print("Starting OFA Crawler; " + str(datetime.now()))
+
 
     while pages <= 3:
         jsQueue = []
@@ -78,6 +80,7 @@ def ofa_crawl(url):
         for row in soup.find_all("div"):
             if row.get("onclick"):
                 jsQueue.append(row.get("class")[0])
+
     
         x = driver.find_elements_by_class_name(jsQueue[0])
 
@@ -124,10 +127,12 @@ def ofa_crawl(url):
 def open_link(current_soup, current_url):
     data = {}    
     print("Found link " + current_url)
+
     data["URL"] = current_url
     find_title(current_soup, data)
     find_date(current_soup, data)
     return data
+
 
 # This function to get the title of each event from link
 def find_title(soup, data):
@@ -141,6 +146,7 @@ def find_title(soup, data):
 # This function to get the description of each event from link
 def find_description(soup, data):
     desc = soup.find("span", attrs={"class": "event-desc-theme"})
+
     p_desc = ""
     loc = ""
     time = ""
@@ -153,11 +159,13 @@ def find_description(soup, data):
                 else:
                     p_desc = p_desc + row.text
                 if ("pm" in row.text.lower() or "am" in row.text.lower()) and any(c.isdigit() for c in row.text):
+
                     time += row.text + " "
         except:
             pass
     if time != "":
         data["Time"] = time.replace('\u00a0', '')
+
     else:
         data["Time"] = "Unknown"
     for row in desc.findAll(text=True, recursive=False):
@@ -167,7 +175,9 @@ def find_description(soup, data):
             break
     data["Description"] = p_desc
 
+
 #This function to get the date from each event from link
+
 def find_date(soup, data):
     header_re = re.compile('.*header.*')
     for row in soup.findAll(attrs={"class": header_re}):
@@ -177,6 +187,9 @@ def find_date(soup, data):
                     data["Date"] = str(parse(val))
                     break
         except Exception as a:
+
+            # print(a)
+
             pass
         try:
             if "pm" in str(row.lower()) or "am" in str(row.lower()):
@@ -184,21 +197,27 @@ def find_date(soup, data):
         except:
             pass
 
+
 # This function to get the location of each event from link
 def find_location(location, data):
     data["Location"] = location.replace('\n', '').replace('\t', '')
     # print(OUTPUT)W
+
 
 # This function to create a json file
 def create_json():
     with open('OFA_event_data.json', 'w') as outfile:
         json.dump(OUTPUT, outfile)
 
+
 # Main function
+
 def main():
     count = 0
     while count != 5:
         try:
+
+
             ofa_crawl(OFA)
             break
         except Exception as e:
@@ -210,8 +229,10 @@ def main():
                 break
 
     create_json()
+
     print("\nClosing OFA Crawler; " + str(datetime.now()))
 
 
 if __name__ == '__main__':
     main()
+
