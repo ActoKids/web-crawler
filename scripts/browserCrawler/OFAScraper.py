@@ -6,6 +6,7 @@ NSC - AD440 CLOUD PRACTICIUM
 
 Changed ownership on 02/09/2019
 @author: Dao Nguyen
+Last edited by Dao Nguyen 02/19/2019
 
 """
 
@@ -17,6 +18,10 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import selenium.webdriver.chrome.service as service
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 import time
 from dateutil.parser import parse
@@ -35,74 +40,113 @@ OFA = "https://outdoorsforall.org/events-news/calendar/"
 
 
 def ofa_crawl(url):
-    print(url)
     global QUEUE
     global FOUND_LIST
     global SOUP
-    jsQueue = []
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
     options.add_argument("--log-level=3")
-    driver = webdriver.Chrome(chrome_options=options)
-    driver.get(url)
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-    pages = 3
-    # Grabs all links on calendar
+
+    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+    pages = 1
+
+    # Grab all links on calendar for 3 months from current month
+    print()
+    print("Starting OFA Crawler; " + str(datetime.now()))
+
+
     while pages <= 3:
+        jsQueue = []
+        if pages == 1:
+            try:
+                driver.get(url)
+                print("\nConnecting to " + url + "; success\n") 
+            except:
+                print("\nConnecting to " + url + "; failed\n")  
+            
+        # set selenium to click to the next month from current calendar month
+        if pages == 2:  
+            driver.get(url)
+            WebDriverWait(driver, 1).until(EC.element_to_be_clickable((By.XPATH, "//a[img[@alt='Forward']]"))).click()    
+        # set selenium to click to the month after next month
+        elif pages == 3:
+            driver.get(url)
+            WebDriverWait(driver, 1).until(EC.element_to_be_clickable((By.XPATH, "//a[img[@alt='Forward']]"))).click()
+            time.sleep(1)
+            driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
+            
+        # parse the pages and add all links found to a list
+        soup = BeautifulSoup(driver.page_source, "html.parser")  
         for row in soup.find_all("div"):
             if row.get("onclick"):
                 jsQueue.append(row.get("class")[0])
-        # driver.find_element_by_xpath("//*[@id='main_cal']/tbody/tr/td/table/tbody/tr[1]/td[3]/a").click()
-        pages += 1
+
+    
         x = driver.find_elements_by_class_name(jsQueue[0])
-    count = 0
-    # Click all found elements to open page and grab the URL
-    for row in x:
-        row.click()
-        driver.switch_to.window(driver.window_handles[1])
-        if driver.current_url not in FOUND_LIST:
-            print()
-            print("Scraping for a new event...")
-            # QUEUE.append(driver.current_url)
-            FOUND_LIST.append(driver.current_url)
-            print("Links remaining - " + str(len(jsQueue)))
-            jsQueue.pop(0)
-            current_url = driver.current_url
-            current_soup = BeautifulSoup(driver.page_source, "html.parser")
-            for linebreak in current_soup.find_all('br'):
-                linebreak.extract()
-            # Calls OFAScraper module to populate a dictionary object to add to the output
-            OUTPUT[current_url] = open_link(current_soup, current_url)
-            #SOUP.append(BeautifulSoup(driver.page_source, "html.parser"))
-            driver.switch_to.window(driver.window_handles[0])
-            print("Scraping reached end of page")
-        else:
-            driver.switch_to.window(driver.window_handles[0])
-        # Count is used for test purposes only.
-        #count += 1
-        if count == 3:
-            break
+
+        # to refresh the elements and retrieve them on the current page
+        if pages >= 2 :  
+            time.sleep(0.45)  
+            count = 0   
+            while count != 5:
+                soup = BeautifulSoup(driver.page_source, "html.parser")  
+                for row in soup.find_all("div"):
+                    if row.get("onclick"):
+                        jsQueue.append(row.get("class")[0])
+                x = driver.find_elements_by_class_name(jsQueue[0])
+                count += 1
+                      
+        # Click all found elements to open page and grab the URL
+        for row in x:
+            row.click()
+            driver.switch_to.window(driver.window_handles[1])
+
+            # check for links that previously found from the previous month, if not found 
+            # add to list
+            if driver.current_url not in FOUND_LIST:
+ 
+                FOUND_LIST.append(driver.current_url)
+                
+                jsQueue.pop(0)
+                current_url = driver.current_url
+                current_soup = BeautifulSoup(driver.page_source, "html.parser")
+                for linebreak in current_soup.find_all('br'):
+                    linebreak.extract()
+                # Calls OFAScraper module to populate a dictionary object to add to the output
+                OUTPUT[current_url] = open_link(current_soup, current_url)
+                driver.switch_to.window(driver.window_handles[0])
+
+            else:
+                driver.switch_to.window(driver.window_handles[0])
+
+        pages += 1
     driver.quit()
 
-
+# This open work on the data from each link, call for helpers to get additional data
+# return data and status
 def open_link(current_soup, current_url):
-    data = {}
+    data = {}    
+    print("Found link " + current_url)
+
     data["URL"] = current_url
     find_title(current_soup, data)
     find_date(current_soup, data)
     return data
 
 
+# This function to get the title of each event from link
 def find_title(soup, data):
     if soup.find(class_="header-theme"):
         title = soup.find(class_="header-theme").text
+        title = title.replace('\n', '')
+        title = title.replace('\t', '')
         data["Title"] = title
         find_description(soup, data)
 
-
+# This function to get the description of each event from link
 def find_description(soup, data):
     desc = soup.find("span", attrs={"class": "event-desc-theme"})
-    # print(desc)
+
     p_desc = ""
     loc = ""
     time = ""
@@ -115,13 +159,13 @@ def find_description(soup, data):
                 else:
                     p_desc = p_desc + row.text
                 if ("pm" in row.text.lower() or "am" in row.text.lower()) and any(c.isdigit() for c in row.text):
-                    # print(row.text)
+
                     time += row.text + " "
-                # print(row.text)
         except:
             pass
     if time != "":
-        data["Time"] = time
+        data["Time"] = time.replace('\u00a0', '')
+
     else:
         data["Time"] = "Unknown"
     for row in desc.findAll(text=True, recursive=False):
@@ -132,6 +176,8 @@ def find_description(soup, data):
     data["Description"] = p_desc
 
 
+#This function to get the date from each event from link
+
 def find_date(soup, data):
     header_re = re.compile('.*header.*')
     for row in soup.findAll(attrs={"class": header_re}):
@@ -141,7 +187,9 @@ def find_date(soup, data):
                     data["Date"] = str(parse(val))
                     break
         except Exception as a:
+
             # print(a)
+
             pass
         try:
             if "pm" in str(row.lower()) or "am" in str(row.lower()):
@@ -150,28 +198,27 @@ def find_date(soup, data):
             pass
 
 
+# This function to get the location of each event from link
 def find_location(location, data):
-    data["Location"] = location
+    data["Location"] = location.replace('\n', '').replace('\t', '')
     # print(OUTPUT)W
 
 
+# This function to create a json file
 def create_json():
-    print("creating json...")
     with open('OFA_event_data.json', 'w') as outfile:
         json.dump(OUTPUT, outfile)
-    #s3.Object('mjleontest', 'browser_event_data.json').put(Body=open('browser_event_data.json', 'rb'))
 
+
+# Main function
 
 def main():
-    start_time = time.time()
-    print("Crawler Started.")
     count = 0
     while count != 5:
         try:
-            print("OFA Crawl Started.")
-            # open_url(EVENT_BRITE)
+
+
             ofa_crawl(OFA)
-            print("OFA Crawl Completed.")
             break
         except Exception as e:
             print("Error gathering URL data, " + str(e))
@@ -180,11 +227,12 @@ def main():
                 print("Retrying selenium...")
             else:
                 break
+
     create_json()
-    elapsed_time = time.time() - start_time
-    print("Crawler Ended.")
-    print(elapsed_time)
+
+    print("\nClosing OFA Crawler; " + str(datetime.now()))
 
 
 if __name__ == '__main__':
     main()
+
