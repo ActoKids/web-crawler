@@ -133,7 +133,7 @@ def ofa_crawl(url):
 # return data and status
 def open_link(current_soup, current_url):
     data = {}    
-    print("Found link " + current_url)
+    print("Found event " + current_url)
     data["ID"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, current_url))
     data["URL"] = current_url
     data["Title"] = str(find_title(current_soup, data))

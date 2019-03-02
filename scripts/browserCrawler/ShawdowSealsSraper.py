@@ -32,90 +32,96 @@ ADDRESS = ['Renton: Lindbergh HS Pool: 16740 128th Ave SE Renton, WA 98058',
            'Hazen High School: 1101 Hoquiam Ave NE Renton, WA 98059 425-204-4230']
 #This script scrapes a website and pulls specific data.
 def main():
- 
-    source = urllib.request.urlopen('http://www.shadowsealsswimming.org/Calendar.html').read()
-    soup = bs.BeautifulSoup(source,'html.parser')
+    print("Starting SS Scraper; " + str(datetime.now()))
+    try:
+        print("Connecting to http://www.shadowsealsswimming.org/Calendar.html; success")
+        source = urllib.request.urlopen('http://www.shadowsealsswimming.org/Calendar.html').read()
+        soup = bs.BeautifulSoup(source,'html.parser')
 
-    table = soup.table
-    table = soup.find('table')
-    table_rows = table.find_all('tr')
-    for tr in table_rows:
-        td = tr.find_all('td')
-        row = [i.text for i in td]
-        data = {}
-        
-        find_date = row[0].replace(' - ', '-')
-        find_date = find_date.replace(',', '').split(' ')
-        find_location = row[2].split(' ')
+        table = soup.table
+        table = soup.find('table')
+        table_rows = table.find_all('tr')
+        for tr in table_rows:
+            td = tr.find_all('td')
+            row = [i.text for i in td]
+            data = {}
+            
+            find_date = row[0].replace(' - ', '-')
+            find_date = find_date.replace(',', '').split(' ')
+            find_location = row[2].split(' ')
 
-        target_title = ""
-        for find_title in find_location:
-            if find_title != "-":
-                target_title = target_title + find_title + " "
-            else:
-                break
-        data["Title"] = target_title.strip('\xa0').strip('\n')
+            target_title = ""
+            for find_title in find_location:
+                if find_title != "-":
+                    target_title = target_title + find_title + " "
+                else:
+                    break
+            data["Title"] = target_title.strip('\xa0').strip('\n')
 
-        if len(find_date) >= 3:
-            date_string = find_date[0] + ' ' + find_date[1] + ' ' + find_date[2].strip('\n')
-            if '-' in find_date[1]:
-                date_operation = find_date[1].split('-')
-                
-                for x in range(int(date_operation[0]), int(date_operation[1]) + 1):
-                    new_date_string = ""
-                    new_date_string = new_date_string + find_date[0] + ' ' + \
-                        str(x) + ' ' + find_date[2].strip('\n')
+            if len(find_date) >= 3:
+                date_string = find_date[0] + ' ' + find_date[1] + ' ' + find_date[2].strip('\n')
+                if '-' in find_date[1]:
+                    date_operation = find_date[1].split('-')
+                    
+                    for x in range(int(date_operation[0]), int(date_operation[1]) + 1):
+                        new_date_string = ""
+                        new_date_string = new_date_string + find_date[0] + ' ' + \
+                            str(x) + ' ' + find_date[2].strip('\n')
 
-                    date_object = validate_date(new_date_string)
+                        date_object = validate_date(new_date_string)
+                        if date_object:
+                            data["Date"] = date_object.strftime(
+                                '%Y-%m-%d')
+                        for i in td:
+                            time = ""
+                            event_des = ""
+                            if ("pm" in row[1].lower() or "am" in row[1].lower()) and any(c.isdigit() for c in row[1]):
+                                time += row[1]
+                                data["Time"] = time.replace('\n', '')
+                            
+                        
+                            for location in find_location:
+                                for address in ADDRESS:
+                                    if location in address:
+                                        data["Location"] = address
+                            data["Desription"] = row[2].replace('\n', '').replace('\xa0', '')
+                        #print(data)
+                        OUTPUT.append(data)
+
+                else:
+                    date_object = validate_date(date_string)
                     if date_object:
                         data["Date"] = date_object.strftime(
                             '%Y-%m-%d')
+                    else: 
+                        data["Date"] = row[0].strip('\xa0')
+
                     for i in td:
                         time = ""
                         event_des = ""
                         if ("pm" in row[1].lower() or "am" in row[1].lower()) and any(c.isdigit() for c in row[1]):
                             time += row[1]
-                            data["Time"] = time.replace('\n', '')
-                        
+                            data["Time"] = time.replace('\n','')
                     
+
+                        
                         for location in find_location:
                             for address in ADDRESS:
                                 if location in address:
                                     data["Location"] = address
-                        data["Desription"] = row[2].replace('\n', '').replace('\xa0', '')
-                    #print(data)
-                    OUTPUT.append(data)
-
-            else:
-                date_object = validate_date(date_string)
-                if date_object:
-                    data["Date"] = date_object.strftime(
-                        '%Y-%m-%d')
-                else: 
-                     data["Date"] = row[0].strip('\xa0')
-
-                for i in td:
-                    time = ""
-                    event_des = ""
-                    if ("pm" in row[1].lower() or "am" in row[1].lower()) and any(c.isdigit() for c in row[1]):
-                        time += row[1]
-                        data["Time"] = time.replace('\n','')
-                   
-
-                    
-                    for location in find_location:
-                        for address in ADDRESS:
-                            if location in address:
-                                data["Location"] = address
-                    data["Description"] = row[2].replace('\n', '').replace('\xa0', '')
-            #print(row)
-                if "Location" not in data:
-                    data["Location"] = "Unknown"
-                if "Time" not in data:
-                    data["Time"] = "Unknown"
-                data["URL"] = "http://www.shadowsealsswimming.org/Calendar.html"
-                data["ID"] = str(uuid.uuid3(uuid.NAMESPACE_DNS, data["Title"] + data["Date"]))
-                to_dynamo(data)           
+                        data["Description"] = row[2].replace('\n', '').replace('\xa0', '')
+                #print(row)
+                    if "Location" not in data:
+                        data["Location"] = "Unknown"
+                    if "Time" not in data:
+                        data["Time"] = "Unknown"
+                    data["URL"] = "http://www.shadowsealsswimming.org/Calendar.html"
+                    data["ID"] = str(uuid.uuid3(uuid.NAMESPACE_DNS, data["Title"] + data["Date"]))
+                    print("Found event " + data["Title"])
+                    to_dynamo(data) 
+    except:
+        print("Connecting to http://www.shadowsealsswimming.org/Calendar.html; failed")
+    print("Ending SS Scraper; " + str(datetime.now()))          
 
 def to_dynamo(data):
     table = dynamodb.Table('events')
