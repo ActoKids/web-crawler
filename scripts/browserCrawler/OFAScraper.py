@@ -47,7 +47,6 @@ def ofa_crawl(url):
     options.add_argument('headless')
     options.add_argument("--log-level=3")
     driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-    print("Were in")
     pages = 1
 
     # Grab all links on calendar for 3 months from current month

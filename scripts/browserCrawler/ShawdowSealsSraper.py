@@ -21,6 +21,9 @@ from dateutil.parser import parse
 from datetime import datetime
 import datetime as dt
 import boto3
+import uuid
+
+dynamodb = boto3.resource('dynamodb', 'us-east-1')
 
 OUTPUT = []
 ADDRESS = ['Renton: Lindbergh HS Pool: 16740 128th Ave SE Renton, WA 98058',
@@ -66,7 +69,7 @@ def main():
                     date_object = validate_date(new_date_string)
                     if date_object:
                         data["Date"] = date_object.strftime(
-                            '%Y-%m-%d %H:%M:%S')
+                            '%Y-%m-%d')
                     for i in td:
                         time = ""
                         event_des = ""
@@ -87,7 +90,7 @@ def main():
                 date_object = validate_date(date_string)
                 if date_object:
                     data["Date"] = date_object.strftime(
-                        '%Y-%m-%d %H:%M:%S')
+                        '%Y-%m-%d')
                 else: 
                      data["Date"] = row[0].strip('\xa0')
 
@@ -104,19 +107,23 @@ def main():
                         for address in ADDRESS:
                             if location in address:
                                 data["Location"] = address
-                    data["Desription"] = row[2].replace('\n', '').replace('\xa0', '')
+                    data["Description"] = row[2].replace('\n', '').replace('\xa0', '')
             #print(row)
-                #print(data)
-                OUTPUT.append(data)
+                if "Location" not in data:
+                    data["Location"] = "Unknown"
+                if "Time" not in data:
+                    data["Time"] = "Unknown"
+                data["URL"] = "http://www.shadowsealsswimming.org/Calendar.html"
+                data["ID"] = str(uuid.uuid3(uuid.NAMESPACE_DNS, data["Title"] + data["Date"]))
+                to_dynamo(data)           
 
-        
-    create_json()
-    print(OUTPUT)
-
-def create_json():
-    print("creating json...")
-    with open('SSS_event_data.json', 'w') as outfile:
-        json.dump(OUTPUT, outfile)
+def to_dynamo(data):
+    table = dynamodb.Table('events')
+    table.put_item(Item={'ID': data['ID'],
+                        'URL': data['URL'],
+                        'Title': data['Title'],
+                        'Description': data['Description'],
+                        'Date': data['Date']})   
     #s3.Object('mjleontest', 'browser_event_data.json').put(Body=open('browser_event_data.json', 'rb'))
 
 # This function to check the date in string and return if date is valid or not
