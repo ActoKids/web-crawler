@@ -4,6 +4,8 @@ Created on 02/17/2019
 NSC - AD440 CLOUD PRACTICIUM
 @author: Dao Nguyen
 
+Changed ownership on 03/01/2019
+@author: Michael Leon
 """
 
 import urllib.request
