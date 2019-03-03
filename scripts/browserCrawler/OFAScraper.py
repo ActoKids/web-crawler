@@ -120,6 +120,7 @@ def ofa_crawl(url):
                                     'URL': data['URL'],
                                     'Title': data['Title'],
                                     'Description': data['Description'],
+                                    'Location': data['Location'],
                                     'Date': data['Date']})
                 driver.switch_to.window(driver.window_handles[0])
 

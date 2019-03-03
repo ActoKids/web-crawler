@@ -129,6 +129,7 @@ def to_dynamo(data):
                         'URL': data['URL'],
                         'Title': data['Title'],
                         'Description': data['Description'],
+                        'Location': data['Location'],
                         'Date': data['Date']})   
     #s3.Object('mjleontest', 'browser_event_data.json').put(Body=open('browser_event_data.json', 'rb'))
 
