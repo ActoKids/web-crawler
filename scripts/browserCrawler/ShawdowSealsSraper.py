@@ -26,7 +26,7 @@ import boto3
 import uuid
 
 dynamodb = boto3.resource('dynamodb', 'us-east-1')
-
+f = open("sslog.log", "w")
 OUTPUT = []
 ADDRESS = ['Renton: Lindbergh HS Pool: 16740 128th Ave SE Renton, WA 98058',
            'Shoreline Pool: 19030 1st Ave NE Shoreline, WA 98155',
@@ -34,9 +34,9 @@ ADDRESS = ['Renton: Lindbergh HS Pool: 16740 128th Ave SE Renton, WA 98058',
            'Hazen High School: 1101 Hoquiam Ave NE Renton, WA 98059 425-204-4230']
 #This script scrapes a website and pulls specific data.
 def main():
-    print("Starting SS Scraper; " + str(datetime.now()))
+    print("Starting SS Scraper; " + str(datetime.now()), file=f)
     try:
-        print("Connecting to http://www.shadowsealsswimming.org/Calendar.html; success")
+        print("Connecting to http://www.shadowsealsswimming.org/Calendar.html; success", file=f)
         source = urllib.request.urlopen('http://www.shadowsealsswimming.org/Calendar.html').read()
         soup = bs.BeautifulSoup(source,'html.parser')
 
@@ -119,11 +119,11 @@ def main():
                         data["Time"] = "Unknown"
                     data["URL"] = "http://www.shadowsealsswimming.org/Calendar.html"
                     data["ID"] = str(uuid.uuid3(uuid.NAMESPACE_DNS, data["Title"] + data["Date"]))
-                    print("Found event " + data["Title"])
+                    print("Found event " + data["Title"], file=f)
                     to_dynamo(data) 
     except:
-        print("Connecting to http://www.shadowsealsswimming.org/Calendar.html; failed")
-    print("Ending SS Scraper; " + str(datetime.now()))          
+        print("Connecting to http://www.shadowsealsswimming.org/Calendar.html; failed", file=f)
+    print("Ending SS Scraper; " + str(datetime.now()), file=f)     
 
 def to_dynamo(data):
     table = dynamodb.Table('events')
