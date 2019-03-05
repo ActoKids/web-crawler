@@ -28,7 +28,7 @@ import time
 from dateutil.parser import parse
 from datetime import datetime
 import boto3
-
+f = open("ofalog.log", "w")
 # This script scrapes a website and pulls specific data.
 FOUND_LIST = []
 QUEUE = []
@@ -50,17 +50,16 @@ def ofa_crawl(url):
     pages = 1
 
     # Grab all links on calendar for 3 months from current month
-    print()
-    print("Starting OFA Crawler; " + str(datetime.now()))
+    print("Starting OFA Crawler; " + str(datetime.now()), file=f)
 
     while pages <= 3:
         jsQueue = []
         if pages == 1:
             try:
                 driver.get(url)
-                print("\nConnecting to " + url + "; success\n") 
+                print("\nConnecting to " + url + "; success\n", file=f) 
             except:
-                print("\nConnecting to " + url + "; failed\n")  
+                print("\nConnecting to " + url + "; failed\n", file=f)  
             
         # set selenium to click to the next month from current calendar month
         if pages == 2:  
@@ -134,7 +133,7 @@ def ofa_crawl(url):
 # return data and status
 def open_link(current_soup, current_url):
     data = {}    
-    print("Found event " + current_url)
+    print("Found event " + current_url, file=f)
     data["ID"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, current_url))
     data["URL"] = current_url
     data["Title"] = str(find_title(current_soup, data))
@@ -189,7 +188,7 @@ def find_date(soup, data):
             pass
         try:
             if "pm" in str(row.lower()) or "am" in str(row.lower()):
-                print("Time found!")
+                print("Time found!", file=f)
         except:
             pass
 
@@ -206,13 +205,13 @@ def main():
             ofa_crawl(OFA)
             break
         except Exception as e:
-            print("Error gathering URL data, " + str(e))
+            print("Error gathering URL data, " + str(e), file=f)
             if str(e) == "list index out of range":
                 count += 1
                 print("Retrying selenium...")
             else:
                 break
-    print("\nClosing OFA Crawler; " + str(datetime.now()))
+    print("\nClosing OFA Crawler; " + str(datetime.now()), file=f)
 
 
 if __name__ == '__main__':
