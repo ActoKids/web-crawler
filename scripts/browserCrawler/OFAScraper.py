@@ -136,13 +136,14 @@ def open_link(current_soup, current_url):
     print("Found event " + current_url, file=f)
     data["ID"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, current_url))
     data["URL"] = current_url
-    data["Title"] = str(find_title(current_soup, data))
-    data["Description"] = str(find_description(current_soup, data))
-    data["Date"] = str(find_date(current_soup, data))
+    data["Title"] = str(find_title(current_soup))
+    data["Description"] = str(find_description(current_soup))
+    data["Date"] = str(find_date(current_soup))
+    data["Location"] = str(find_location(current_soup))
     return data
 
 # This function to get the title of each event from link
-def find_title(soup, data):
+def find_title(soup):
     if soup.find(class_="header-theme"):
         title = soup.find(class_="header-theme").text
         title = title.replace('\n', '')
@@ -151,7 +152,7 @@ def find_title(soup, data):
         
 
 # This function to get the description of each event from link
-def find_description(soup, data):
+def find_description(soup):
     desc = soup.find("span", attrs={"class": "event-desc-theme"})
     p_desc = ""
     loc = ""
@@ -168,33 +169,36 @@ def find_description(soup, data):
                     time += row.text + " "
         except:
             pass
-    for row in desc.findAll(text=True, recursive=False):
-        if(len(row) > 1):
-            loc = re.sub("\r\n", "", row)
-            find_location(loc, data)
-            break
+    if not p_desc:
+        p_desc = "None"
     return(p_desc)
 
 #This function to get the date from each event from link
-def find_date(soup, data):
-    header_re = re.compile('.*header.*')
-    for row in soup.findAll(attrs={"class": header_re}):
+def find_date(soup):
+    for row in soup.findAll(attrs={"class": "subheader-theme"}):
+        row = row.text.splitlines()
         try:
             for val in row:
-                if parse(val):
-                    return(str(parse(val).date()))
-                    break
-        except Exception as a:
-            pass
-        try:
-            if "pm" in str(row.lower()) or "am" in str(row.lower()):
-                print("Time found!", file=f)
+                try:
+                    if parse(val):
+                        return(str(parse(val).date()))
+                except:
+                    pass
         except:
             pass
+    return("Unknown")
 
 # This function to get the location of each event from link
-def find_location(location, data):
-    data["Location"] = location.replace('\n', '').replace('\t', '')
+def find_location(soup):
+    desc = soup.find("span", attrs={"class": "event-desc-theme"})
+    loc = ""
+    for row in desc.findAll(text=True, recursive=False):
+        if(len(row) > 1):
+            loc = re.sub("\r\n", "", row)
+    if len(loc) > 0:
+        return(loc.replace('\n', '').replace('\t', ''))
+    else:
+        return("Unknown")
     # print(OUTPUT)W
 
 # Main function
