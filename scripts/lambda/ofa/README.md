@@ -1,0 +1,1 @@
+If modifying on anything but a linux, you must open this with winrar, pull the lambda_function.py, then modify that file, and finally add it through the winrar add interface. If done any other way then it will cause permission issues as linux permissions will be lost.
