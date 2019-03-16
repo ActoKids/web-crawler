@@ -56,7 +56,7 @@ def main():
                     target_title = target_title + find_title + " "
                 else:
                     break
-            data["Title"] = target_title.strip('\xa0').strip('\n')
+            data["event_name"] = target_title.strip('\xa0').strip('\n')
 
             if len(find_date) >= 3:
                 date_string = find_date[0] + ' ' + find_date[1] + ' ' + find_date[2].strip('\n')
@@ -70,7 +70,7 @@ def main():
 
                         date_object = validate_date(new_date_string)
                         if date_object:
-                            data["Date"] = date_object.strftime(
+                            data["start_date_time"] = date_object.strftime(
                                 '%Y-%m-%d')
                         for i in td:
                             time = ""
@@ -84,18 +84,18 @@ def main():
                             for location in find_location:
                                 for address in ADDRESS:
                                     if location in address:
-                                        data["Location"] = address
-                            data["Desription"] = row[2].replace('\n', '').replace('\xa0', '')
+                                        data["location_address"] = address
+                            data["description"] = row[2].replace('\n', '').replace('\xa0', '')
                         #print(data)
                         OUTPUT.append(data)
 
                 else:
                     date_object = validate_date(date_string)
                     if date_object:
-                        data["Date"] = date_object.strftime(
+                        data["start_date_time"] = date_object.strftime(
                             '%Y-%m-%d')
                     else: 
-                        data["Date"] = row[0].strip('\xa0')
+                        data["start_date_time"] = row[0].strip('\xa0')
 
                     for i in td:
                         time = ""
@@ -105,7 +105,7 @@ def main():
                             time = time.split("-")
                             try:
                                 time = time[0]+" pm"
-                                data["Date"] = data["Date"]+" "+(timeparse.strftime("%H:%M:%S", timeparse.strptime(time, "%I:%M %p")))
+                                data["start_date_time"] = data["start_date_time"]+" "+(timeparse.strftime("%H:%M:%S", timeparse.strptime(time, "%I:%M %p")))
                                 break
                             except Exception as A:
                                 print(A)
@@ -114,17 +114,34 @@ def main():
                     for location in find_location:
                         for address in ADDRESS:
                             if location in address:
-                                data["Location"] = address
-                    data["Description"] = row[2].replace('\n', '').replace('\xa0', '')
+                                data["location_address"] = address
+                    data["description"] = row[2].replace('\n', '').replace('\xa0', '')
                 #print(row)
                     if "Location" not in data:
-                        data["Location"] = "Unknown"
+                        data["location_address"] = "Unknown"
                     if "Time" not in data:
                         data["Time"] = "Unknown"
-                    data["URL"] = "http://www.shadowsealsswimming.org/Calendar.html"
-                    data["ID"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, data["Title"] + data["Date"]))
+                    data["event_link"] = "http://www.shadowsealsswimming.org/Calendar.html"
+                    data["event_id"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, data["event_name"] + data["start_date_time"]))
                     #print("Found event " + data["Title"], file=f)
-                    print("Found event " + data["Title"])
+                    data["user_name"] = "None"
+                    data["activity_type"] = "Contact organizer for details"
+                    data["org_name"] = "Shadow Seals Swimming"
+                    data["location_name"] = "Contact organizer for details"
+                    data["contact_name"] = "Contact organizer for details"
+                    data["contact_phone"] = "Contact organizer for details"
+                    data["contact_email"] = "Contact organizer for details"
+                    data["end_date_time"] = "Contact organizer for details"
+                    data["frequency"] = "Contact organizer for details"
+                    data["cost"] = "Contact organizer for details"
+                    data["picture_url"] = "<img src=\"http://www.shadowsealsswimming.org/images/c03de8f057c6e9610d95a251f7085d95_944j.png\">"
+                    data["min_age"] = "Contact organizer for details"
+                    data["max_age"] = "Contact organizer for details"
+                    data["disability_types"] = "Contact organizer for details"
+                    data["inclusive_event"] = "Contact organizer for details"
+                    data["event_status"] = "pending"
+                    data["approver"] = "N/A"
+                    data["created_timestamp"] = str(datetime.now())
                     to_dynamo(data) 
     except:
         #print("Connecting to http://www.shadowsealsswimming.org/Calendar.html; failed", file=f)
@@ -134,12 +151,35 @@ def main():
 
 def to_dynamo(data):
     table = dynamodb.Table('events')
-    table.put_item(Item={'event_id': data['ID'],
-                        'event_link': data['URL'],
-                        'event_name': data['Title'],
-                        'description': data['Description'],
-                        'location_address': data['Location'],
-                        'start_date_time': data['Date']})   
+    try:
+        table.put_item(Item={"event_id": data["event_id"],
+                            "event_link": data["event_link"],
+                            "event_name": data["event_name"],
+                            "description": data["description"],
+                            "location_address": data["location_address"],
+                            "start_date_time": data["start_date_time"],
+                            "user_name": data["user_name"],
+                            "activity_type": data["activity_type"],
+                            "org_name": data["org_name"],
+                            "location_name": data["location_name"],
+                            "contact_name": data["contact_name"],
+                            "contact_phone": data["contact_phone"],
+                            "contact_email": data["contact_email"],
+                            "end_date_time": data["end_date_time"],
+                            "frequency": data["frequency"],
+                            "cost": data["cost"],
+                            "picture_url": data["picture_url"],
+                            "min_age": data["min_age"],
+                            "max_age": data["max_age"],
+                            "disability_types": data["disability_types"],
+                            "inclusive_event": data["inclusive_event"],
+                            "event_status": data["event_status"],
+                            "approver": data["approver"],
+                            "created_timestamp": data["created_timestamp"]},
+                        ConditionExpression = "attribute_not_exists(event_id)")
+        print("Found event " + data["event_name"])
+    except Exception as A:
+        print("Event " + data["event_name"] + " exists already.")
     #s3.Object('mjleontest', 'browser_event_data.json').put(Body=open('browser_event_data.json', 'rb'))
 
 # This function to check the date in string and return if date is valid or not

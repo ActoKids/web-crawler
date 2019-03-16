@@ -46,6 +46,7 @@ def ofa_crawl(url):
     global QUEUE
     global FOUND_LIST
     global SOUP
+    
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
@@ -133,12 +134,35 @@ def ofa_crawl(url):
                 # Calls OFAScraper module to populate a dictionary object to add to the output
                 data = open_link(current_soup, current_url)
                 table = dynamodb.Table('events')
-                table.put_item(Item={'event_id': data['ID'],
-                                    'event_link': data['URL'],
-                                    'event_name': data['Title'],
-                                    'description': data['Description'],
-                                    'location_address': data['Location'],
-                                    'start_date_time': data['Date']})
+                try:
+                    table.put_item(Item={"event_id": data["event_id"],
+                                        "event_link": data["event_link"],
+                                        "event_name": data["event_name"],
+                                        "description": data["description"],
+                                        "location_address": data["location_address"],
+                                        "start_date_time": data["start_date_time"],
+                                        "user_name": data["user_name"],
+                                        "activity_type": data["activity_type"],
+                                        "org_name": data["org_name"],
+                                        "location_name": data["location_name"],
+                                        "contact_name": data["contact_name"],
+                                        "contact_phone": data["contact_phone"],
+                                        "contact_email": data["contact_email"],
+                                        "end_date_time": data["end_date_time"],
+                                        "frequency": data["frequency"],
+                                        "cost": data["cost"],
+                                        "picture_url": data["picture_url"],
+                                        "min_age": data["min_age"],
+                                        "max_age": data["max_age"],
+                                        "disability_types": data["disability_types"],
+                                        "inclusive_event": data["inclusive_event"],
+                                        "event_status": data["event_status"],
+                                        "approver": data["approver"],
+                                        "created_timestamp": data["created_timestamp"]},
+                                    ConditionExpression = "attribute_not_exists(event_id)")
+                    print("Found event " + data["event_name"])
+                except Exception as A:
+                    print("Event "+ data["event_name"] +" exists already.")
                 driver.switch_to.window(driver.window_handles[0])
 
             else:
@@ -151,13 +175,31 @@ def ofa_crawl(url):
 # return data and status
 def open_link(current_soup, current_url):
     data = {}    
-    print("Found event " + current_url)
-    data["ID"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, current_url))
-    data["URL"] = current_url
-    data["Title"] = str(find_title(current_soup))
-    data["Description"] = str(find_description(current_soup))
-    data["Date"] = str(find_date(current_soup))
-    data["Location"] = str(find_location(current_soup))
+    data["event_id"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, current_url))
+    data["event_link"] = current_url
+    data["event_name"] = str(find_title(current_soup))
+    data["description"] = str(find_description(current_soup))
+    data["location_address"] = str(find_location(current_soup))
+    data["start_date_time"] = str(find_date(current_soup))
+    data["user_name"] = "None"
+    data["activity_type"] = "Contact organizer for details"
+    data["org_name"] = "Outdoor's for All"
+    data["location_name"] = "Contact organizer for details"
+    data["contact_name"] = "Contact organizer for details"
+    data["contact_phone"] = "Contact organizer for details"
+    data["contact_email"] = "Contact organizer for details"
+    data["end_date_time"] = "Contact organizer for details"
+    data["frequency"] = "Contact organizer for details"
+    data["cost"] = "Contact organizer for details"
+    data["picture_url"] = "<img src=\"https://pbs.twimg.com/profile_images/950894553162117121/Q88YRLQ8_400x400.jpg\">"
+    data["min_age"] = "Contact organizer for details"
+    data["max_age"] = "Contact organizer for details"
+    data["disability_types"] = "Contact organizer for details"
+    data["inclusive_event"] = "Contact organizer for details"
+    data["event_status"] = "pending"
+    data["approver"] = "N/A"
+    data["created_timestamp"] = str(datetime.now())
+
     return data
 
 # This function to get the title of each event from link
@@ -182,7 +224,24 @@ def find_description(soup):
                 if "location" in row.text.lower():
                     pass
                 else:
-                    p_desc = p_desc + row.text
+                    url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+] |[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', row.text)
+                    if url:
+                        for word in row.text.split():
+                            if 'http' in word:
+                                link_url = '<a href="{}"'.format(word) + ' target="{}"><strong>'.format('_blank') + word + '</strong></a>'
+                                p_desc = p_desc + link_url + " "
+                            else:
+                                p_desc = p_desc + word + " "
+                           
+                    else: 
+                        p_desc = p_desc + row.text                             
+                        if row.findAll("a"):
+                            for link in row.findAll("a"):
+                                if link.has_attr('href'):
+                                    link_url = '<a href="{}"'.format(link['href']) + ' target="{}"><strong>'.format('_blank') + link.text + '</strong></a>'
+                                    if link.text in p_desc:
+                                        p_desc = p_desc.replace(link.text, link_url)
+                                        
                 if ("pm" in row.text.lower() or "am" in row.text.lower()) and any(c.isdigit() for c in row.text):
                     time += row.text + " "
         except:
