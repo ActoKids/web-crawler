@@ -1,0 +1,1 @@
+Simply update the lambda_function and replace what is currently in the ss_package folder.
