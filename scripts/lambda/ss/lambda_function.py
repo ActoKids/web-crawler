@@ -132,7 +132,7 @@ def main():
                     data["end_date_time"] = "Contact organizer for details"
                     data["frequency"] = "Contact organizer for details"
                     data["cost"] = "Contact organizer for details"
-                    data["picture_url"] = "<img src=\"http://www.shadowsealsswimming.org/images/c03de8f057c6e9610d95a251f7085d95_944j.png\">"
+                    data["picture_url"] = "<img src='http://www.shadowsealsswimming.org/images/c03de8f057c6e9610d95a251f7085d95_944j.png'>"
                     data["min_age"] = "Contact organizer for details"
                     data["max_age"] = "Contact organizer for details"
                     data["disability_types"] = "Contact organizer for details"
