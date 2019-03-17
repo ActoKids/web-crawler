@@ -117,10 +117,8 @@ def main():
                                 data["location_address"] = address
                     data["description"] = row[2].replace('\n', '').replace('\xa0', '')
                 #print(row)
-                    if "Location" not in data:
-                        data["location_address"] = "Unknown"
-                    if "Time" not in data:
-                        data["Time"] = "Unknown"
+                    if "location_address" not in data:
+                        data["location_address"] = "Contact organizer for details"
                     data["event_link"] = "http://www.shadowsealsswimming.org/Calendar.html"
                     data["event_id"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, data["event_name"] + data["start_date_time"]))
                     #print("Found event " + data["Title"], file=f)

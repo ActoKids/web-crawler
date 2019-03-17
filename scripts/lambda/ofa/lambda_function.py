@@ -191,7 +191,7 @@ def open_link(current_soup, current_url):
     data["end_date_time"] = "Contact organizer for details"
     data["frequency"] = "Contact organizer for details"
     data["cost"] = "Contact organizer for details"
-    data["picture_url"] = "<img src=\"https://pbs.twimg.com/profile_images/950894553162117121/Q88YRLQ8_400x400.jpg\">"
+    data["picture_url"] = "<img src='https://pbs.twimg.com/profile_images/950894553162117121/Q88YRLQ8_400x400.jpg'>"
     data["min_age"] = "Contact organizer for details"
     data["max_age"] = "Contact organizer for details"
     data["disability_types"] = "Contact organizer for details"
