@@ -10,7 +10,7 @@ jobs:
     script: skip
     deploy:
      provider: s3
-     bucket: "OFAScraper_prod_s3"
+     bucket: "ofascraper-prod-s3"
      region: us-east-1
      on:
         branch: 
