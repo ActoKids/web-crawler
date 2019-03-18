@@ -6,32 +6,16 @@ install:
   - pip install boto3
 jobs:
   include:
-  - stage: DEV| deploying into dev environment
+  - stage: PROD| deploying OFAScraper_prod into S3 bucket
     script: skip
-    before_deploy: cd scripts
-    deploy: 
-      provider: lambda
-      role: $AWS_LAMBDA_ROLE_ARN_DEV
-      function_name: "ak-crawler-dev-lbd"
-      region: "us-east-1"
-      handler_name: "handler"
-      runtime: "python3.6"
-      on:
-        branch:
+    deploy:
+     provider: s3
+     bucket: "OFAScraper_prod_s3"
+     region: us-east-1
+     on:
+     branch:
         - travis-ci-prod-upd
-  - stage: PROD| deploying into OFAScraper_prod
-    script: skip
-    before_deploy: cd scripts/lambda/production/ofa
-    deploy: 
-      provider: lambda
-      role: $AWS_LAMBDA_ROLE_ARN_PROD
-      function_name: "OFAScraper_prod"
-      region: "us-east-1"
-      handler_name: "handler"
-      runtime: "python3.6"
-      on:
-        branch: 
-        - travis-ci-prod-upd
+    local_dir: scripts/lambda/production/ofa
   - stage: PROD| deploying into ShadowSealScraper_prod
     script: skip
     before_deploy: cd scripts/lambda/production/ss
@@ -57,4 +41,17 @@ jobs:
       runtime: "python3.6"
       on:
         branch: 
+        - travis-ci-prod-upd
+  - stage: DEV| deploying into dev environment
+    script: skip
+    before_deploy: cd scripts
+    deploy: 
+      provider: lambda
+      role: $AWS_LAMBDA_ROLE_ARN_DEV
+      function_name: "ak-crawler-dev-lbd"
+      region: "us-east-1"
+      handler_name: "handler"
+      runtime: "python3.6"
+      on:
+        branch:
         - travis-ci-prod-upd
