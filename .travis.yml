@@ -14,7 +14,7 @@ jobs:
      region: us-east-1
      on:
         branch: 
-        - travis-ci-prod-upd
+        - prod
      local_dir: scripts/lambda/production/ofa
   - stage: PROD| deploying into ShadowSealScraper_prod
     script: skip
@@ -24,11 +24,11 @@ jobs:
       role: $AWS_LAMBDA_ROLE_ARN_PROD
       function_name: "ShadowSealScraper_prod"
       region: "us-east-1"
-      handler_name: "handler"
+      handler_name: "lambda_function.lambda_handler"
       runtime: "python3.6"
       on:
         branch: 
-        - travis-ci-prod-upd
+        - prod
   - stage: PROD| deploying into GoogleCalenderScraper_prod
     script: skip
     before_deploy: cd scripts/lambda/production/google
@@ -37,11 +37,11 @@ jobs:
       role: $AWS_LAMBDA_ROLE_ARN_PROD
       function_name: "GoogleCalendarScraper_prod"
       region: "us-east-1"
-      handler_name: "handler"
+      handler_name: "lambda_function.lambda_handler"
       runtime: "python3.6"
       on:
         branch: 
-        - travis-ci-prod-upd
+        - prod
   - stage: DEV| deploying into dev environment
     script: skip
     before_deploy: cd scripts
@@ -54,4 +54,4 @@ jobs:
       runtime: "python3.6"
       on:
         branch:
-        - travis-ci-prod-upd
+        - dev
