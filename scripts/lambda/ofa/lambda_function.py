@@ -161,7 +161,7 @@ def ofa_crawl(url):
                                         "created_timestamp": data["created_timestamp"]},
                                     ConditionExpression = "attribute_not_exists(event_id)")
                     print("Found event " + data["event_name"])
-                except Exception as A:
+                except:
                     print("Event "+ data["event_name"] +" exists already.")
                 driver.switch_to.window(driver.window_handles[0])
 
@@ -181,19 +181,19 @@ def open_link(current_soup, current_url):
     data["description"] = str(find_description(current_soup))
     data["location_address"] = str(find_location(current_soup))
     data["start_date_time"] = str(find_date(current_soup))
-    data["user_name"] = "None"
+    data["user_name"] = "Admin"
     data["activity_type"] = "Contact organizer for details"
     data["org_name"] = "Outdoor's for All"
     data["location_name"] = "Contact organizer for details"
-    data["contact_name"] = "Contact organizer for details"
-    data["contact_phone"] = "Contact organizer for details"
-    data["contact_email"] = "Contact organizer for details"
+    data["contact_name"] = "Organization Admin"
+    data["contact_phone"] = "(206)838-6030"
+    data["contact_email"] = "info@outdoorsforall.org"
     data["end_date_time"] = "Contact organizer for details"
-    data["frequency"] = "Contact organizer for details"
+    data["frequency"] = "Once"
     data["cost"] = "Contact organizer for details"
-    data["picture_url"] = "<img src='https://pbs.twimg.com/profile_images/950894553162117121/Q88YRLQ8_400x400.jpg'>"
-    data["min_age"] = "Contact organizer for details"
-    data["max_age"] = "Contact organizer for details"
+    data["picture_url"] = "https://pbs.twimg.com/profile_images/950894553162117121/Q88YRLQ8_400x400.jpg"
+    data["min_age"] = "?"
+    data["max_age"] = "?"
     data["disability_types"] = "Contact organizer for details"
     data["inclusive_event"] = "Contact organizer for details"
     data["event_status"] = "pending"
@@ -215,7 +215,6 @@ def find_title(soup):
 def find_description(soup):
     desc = soup.find("span", attrs={"class": "event-desc-theme"})
     p_desc = ""
-    loc = ""
     time = ""
     # Look for all p elements to find description, ignore location and attempt to find time.
     for row in desc.findAll("p"):
@@ -224,7 +223,9 @@ def find_description(soup):
                 if "location" in row.text.lower():
                     pass
                 else:
-                    url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+] |[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', row.text)
+                    p_desc = p_desc + row.text
+                    '''
+                    url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+] |[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', row.text)                  
                     if url:
                         for word in row.text.split():
                             if 'http' in word:
@@ -232,16 +233,15 @@ def find_description(soup):
                                 p_desc = p_desc + link_url + " "
                             else:
                                 p_desc = p_desc + word + " "
-                           
                     else: 
-                        p_desc = p_desc + row.text                             
+                        p_desc = p_desc + row.text
                         if row.findAll("a"):
                             for link in row.findAll("a"):
                                 if link.has_attr('href'):
                                     link_url = '<a href="{}"'.format(link['href']) + ' target="{}"><strong>'.format('_blank') + link.text + '</strong></a>'
                                     if link.text in p_desc:
                                         p_desc = p_desc.replace(link.text, link_url)
-                                        
+                    '''                
                 if ("pm" in row.text.lower() or "am" in row.text.lower()) and any(c.isdigit() for c in row.text):
                     time += row.text + " "
         except:
@@ -271,7 +271,7 @@ def find_date(soup):
                         try:
                             date = str(parser.parse(val +" "+ time))
                             time = ""
-                        except Exception as A:
+                        except:
                             #print(A)
                             pass
         except:

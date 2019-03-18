@@ -21,7 +21,7 @@ import datetime as dt
 import boto3
 import uuid
 
-dynamodb = boto3.resource('dynamodb', 'us-east-1')
+dynamodb = boto3.resource('dynamodb', 'us-west-2')
 #f = open("sslog.log", "w")
 OUTPUT = []
 ADDRESS = ['Renton: Lindbergh HS Pool: 16740 128th Ave SE Renton, WA 98058',
@@ -74,7 +74,6 @@ def main():
                                 '%Y-%m-%d')
                         for i in td:
                             time = ""
-                            event_des = ""
                             
                             if ("pm" in row[1].lower() or "am" in row[1].lower()) and any(c.isdigit() for c in row[1]):
                                 time += row[1]
@@ -99,7 +98,6 @@ def main():
 
                     for i in td:
                         time = ""
-                        event_des = ""
                         if ("pm" in row[1].lower() or "am" in row[1].lower()) and any(c.isdigit() for c in row[1]):
                             time = row[1]
                             time = time.split("-")
@@ -122,19 +120,19 @@ def main():
                     data["event_link"] = "http://www.shadowsealsswimming.org/Calendar.html"
                     data["event_id"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, data["event_name"] + data["start_date_time"]))
                     #print("Found event " + data["Title"], file=f)
-                    data["user_name"] = "None"
-                    data["activity_type"] = "Contact organizer for details"
+                    data["user_name"] = "Admin"
+                    data["activity_type"] = "Swimming"
                     data["org_name"] = "Shadow Seals Swimming"
                     data["location_name"] = "Contact organizer for details"
-                    data["contact_name"] = "Contact organizer for details"
-                    data["contact_phone"] = "Contact organizer for details"
-                    data["contact_email"] = "Contact organizer for details"
+                    data["contact_name"] = "Organization Admin"
+                    data["contact_phone"] = "Unknown"
+                    data["contact_email"] = "info@shadowsealsswimming.org"
                     data["end_date_time"] = "Contact organizer for details"
-                    data["frequency"] = "Contact organizer for details"
+                    data["frequency"] = "Once"
                     data["cost"] = "Contact organizer for details"
-                    data["picture_url"] = "<img src='http://www.shadowsealsswimming.org/images/c03de8f057c6e9610d95a251f7085d95_944j.png'>"
-                    data["min_age"] = "Contact organizer for details"
-                    data["max_age"] = "Contact organizer for details"
+                    data["picture_url"] = "http://www.shadowsealsswimming.org/images/c03de8f057c6e9610d95a251f7085d95_944j.png"
+                    data["min_age"] = "?"
+                    data["max_age"] = "?"
                     data["disability_types"] = "Contact organizer for details"
                     data["inclusive_event"] = "Contact organizer for details"
                     data["event_status"] = "pending"
@@ -148,7 +146,7 @@ def main():
     print("Ending SS Scraper; " + str(datetime.now()))     
 
 def to_dynamo(data):
-    table = dynamodb.Table('events')
+    table = dynamodb.Table('ak-prod-events-dynamo')
     try:
         table.put_item(Item={"event_id": data["event_id"],
                             "event_link": data["event_link"],
@@ -176,7 +174,7 @@ def to_dynamo(data):
                             "created_timestamp": data["created_timestamp"]},
                         ConditionExpression = "attribute_not_exists(event_id)")
         print("Found event " + data["event_name"])
-    except Exception as A:
+    except:
         print("Event " + data["event_name"] + " exists already.")
     #s3.Object('mjleontest', 'browser_event_data.json').put(Body=open('browser_event_data.json', 'rb'))
 
@@ -198,8 +196,7 @@ def validate_date(date_text):
             t = dt.datetime.strptime(new_date_string, fmt)
                 #print(t)
             return t
-            break
-        except ValueError as err:
+        except:
             pass
 
 if __name__ == '__main__':
