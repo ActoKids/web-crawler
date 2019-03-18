@@ -13,8 +13,12 @@ import uuid
 from datetime import datetime
 
 # s3_client = boto3.resource('s3') ## Code for S3 if we need it
-dynamodb = boto3.resource('dynamodb', 'us-west-2')
-table = dynamodb.Table('ak-prod-events-dynamo')
+region = "us-west-2"
+table_name = "ak-prod-events-dynamo"
+dynamodb = boto3.resource('dynamodb', region)
+print("Region:" + region)
+print("Table:" + table_name)
+table = dynamodb.Table(table_name)
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
@@ -100,7 +104,7 @@ def main():
                                         'contact_phone': '(206)963-0916', 
                                         'location_name': 'Contact Organizer for Details', 
                                         'picture_url': 'https://pbs.twimg.com/profile_images/494134906/Seattle_Adaptive_Sports_Logo_400x400.gif', 
-                                        'user_name': 'Admin'},
+                                        'user_name': "Crawler"},
                                         ConditionExpression = "attribute_not_exists(event_id)")
                     print("Found event " + event['summary'])
                 except:
@@ -130,7 +134,7 @@ def main():
                                         'contact_phone': '(206)963-0916', 
                                         'location_name': 'Contact Organizer for Details', 
                                         'picture_url': 'https://pbs.twimg.com/profile_images/494134906/Seattle_Adaptive_Sports_Logo_400x400.gif', 
-                                        'user_name': 'Admin'},
+                                        'user_name': "Crawler"},
                                         ConditionExpression = "attribute_not_exists(event_id)")
                     print("Found event " + event['summary'])
                 except:
@@ -163,7 +167,7 @@ def main():
                                         'contact_phone': '(206)963-0916', 
                                         'location_name': 'Contact Organizer for Details', 
                                         'picture_url': 'https://pbs.twimg.com/profile_images/494134906/Seattle_Adaptive_Sports_Logo_400x400.gif', 
-                                        'user_name': 'Admin'},
+                                        'user_name': "Crawler"},
                                         ConditionExpression = "attribute_not_exists(event_id)")
                     print("Found event " + event['summary'])
                 except:
@@ -193,7 +197,7 @@ def main():
                                         'contact_phone': '(206)963-0916', 
                                         'location_name': 'Contact Organizer for Details', 
                                         'picture_url': 'https://pbs.twimg.com/profile_images/494134906/Seattle_Adaptive_Sports_Logo_400x400.gif', 
-                                        'user_name': 'Admin'},
+                                        'user_name': "Crawler"},
                                         ConditionExpression = "attribute_not_exists(event_id)")
                     print("Found event " + event['summary'])
                 except:

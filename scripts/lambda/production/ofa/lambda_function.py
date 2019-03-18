@@ -39,7 +39,11 @@ DATA = {}
 SOUP = []
 OFA = "https://outdoorsforall.org/events-news/calendar/"
 
-dynamodb = boto3.resource('dynamodb', 'us-west-2')
+region = "us-west-2"
+table_name = "ak-prod-events-dynamo"
+dynamodb = boto3.resource('dynamodb', region)
+print("Region:" + region)
+print("Table:" + table_name)
 
 def ofa_crawl(url):
     global QUEUE
@@ -132,7 +136,7 @@ def ofa_crawl(url):
                     linebreak.extract()
                 # Calls OFAScraper module to populate a dictionary object to add to the output
                 data = open_link(current_soup, current_url)
-                table = dynamodb.Table('ak-prod-events-dynamo')
+                table = dynamodb.Table(table_name)
                 try:
                     table.put_item(Item={"event_id": data["event_id"],
                                         "event_link": data["event_link"],
@@ -180,7 +184,7 @@ def open_link(current_soup, current_url):
     data["description"] = str(find_description(current_soup))
     data["location_address"] = str(find_location(current_soup))
     data["start_date_time"] = str(find_date(current_soup))
-    data["user_name"] = "Admin"
+    data["user_name"] = "Crawler"
     data["activity_type"] = "Contact organizer for details"
     data["org_name"] = "Outdoor's for All"
     data["location_name"] = "Contact organizer for details"

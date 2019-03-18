@@ -21,7 +21,7 @@ import datetime as dt
 import boto3
 import uuid
 
-dynamodb = boto3.resource('dynamodb', 'us-west-2')
+dynamodb = boto3.resource('dynamodb', 'us-east-1')
 #f = open("sslog.log", "w")
 OUTPUT = []
 ADDRESS = ['Renton: Lindbergh HS Pool: 16740 128th Ave SE Renton, WA 98058',
@@ -146,7 +146,7 @@ def main():
     print("Ending SS Scraper; " + str(datetime.now()))     
 
 def to_dynamo(data):
-    table = dynamodb.Table('ak-prod-events-dynamo')
+    table = dynamodb.Table('events')
     try:
         table.put_item(Item={"event_id": data["event_id"],
                             "event_link": data["event_link"],
