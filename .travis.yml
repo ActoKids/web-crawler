@@ -24,7 +24,9 @@ jobs:
       role: $AWS_LAMBDA_ROLE_ARN_PROD
       function_name: "ShadowSealScraper_prod"
       region: "us-east-1"
-      handler_name: "lambda_function.lambda_handler"
+      module_name: "lambda_function"
+      handler_name: "lambda_handler"
+      timeout: 600
       runtime: "python3.6"
       on:
         branch: 
@@ -37,7 +39,9 @@ jobs:
       role: $AWS_LAMBDA_ROLE_ARN_PROD
       function_name: "GoogleCalendarScraper_prod"
       region: "us-east-1"
-      handler_name: "lambda_function.lambda_handler"
+      module_name: "lambda_function"
+      handler_name: "lambda_handler"
+      timeout: 60
       runtime: "python3.6"
       on:
         branch: 
