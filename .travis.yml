@@ -13,7 +13,7 @@ jobs:
      bucket: "OFAScraper_prod_s3"
      region: us-east-1
      on:
-     branch:
+        branch: 
         - travis-ci-prod-upd
     local_dir: scripts/lambda/production/ofa
   - stage: PROD| deploying into ShadowSealScraper_prod
