@@ -14,7 +14,7 @@ jobs:
      region: us-east-1
      on:
         branch: 
-        - travis-ci-prod-upd
+        - prod
      local_dir: scripts/lambda/production/ofa
   - stage: PROD| deploying into ShadowSealScraper_prod
     script: skip
@@ -30,7 +30,7 @@ jobs:
       runtime: "python3.6"
       on:
         branch: 
-        - travis-ci-prod-upd
+        - prod
   - stage: PROD| deploying into GoogleCalenderScraper_prod
     script: skip
     before_deploy: cd scripts/lambda/production/google
@@ -45,10 +45,10 @@ jobs:
       runtime: "python3.6"
       on:
         branch: 
-        - travis-ci-prod-upd
+        - prod
   - stage: DEV| deploying into dev environment
     script: skip
-    before_deploy: cd scripts
+    before_deploy: cd scripts/lambda/ss
     deploy: 
       provider: lambda
       role: $AWS_LAMBDA_ROLE_ARN_DEV
