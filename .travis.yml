@@ -13,8 +13,9 @@ jobs:
      bucket: "ofascraper-prod-s3"
      region: us-east-1
      on:
-        branch: 
+        branch:
         - prod
+        - travis-ci-prod-upd
      local_dir: scripts/lambda/production/ofa
   - stage: PROD| deploying into ShadowSealScraper_prod
     script: skip
@@ -23,22 +24,7 @@ jobs:
       provider: lambda
       role: $AWS_LAMBDA_ROLE_ARN_PROD
       function_name: "ShadowSealScraper_prod"
-      region: "us-east-1"
-      module_name: "lambda_function"
-      handler_name: "lambda_handler"
-      timeout: 600
-      runtime: "python3.6"
-      on:
-        branch: 
-        - prod
-  - stage: PROD| deploying into GoogleCalenderScraper_prod
-    script: skip
-    before_deploy: cd scripts/lambda/production/google
-    deploy:
-      provider: lambda
-      role: $AWS_LAMBDA_ROLE_ARN_PROD
-      function_name: "GoogleCalendarScraper_prod"
-      region: "us-east-1"
+      region: "us-west-2"
       module_name: "lambda_function"
       handler_name: "lambda_handler"
       timeout: 60
@@ -46,6 +32,23 @@ jobs:
       on:
         branch: 
         - prod
+        - travis-ci-prod-upd
+  - stage: PROD| deploying into GoogleCalenderScraper_prod
+    script: skip
+    before_deploy: cd scripts/lambda/production/google
+    deploy:
+      provider: lambda
+      role: $AWS_LAMBDA_ROLE_ARN_PROD
+      function_name: "GoogleCalendarScraper_prod"
+      region: "us-west-2"
+      module_name: "lambda_function"
+      handler_name: "lambda_handler"
+      timeout: 60
+      runtime: "python3.6"
+      on:
+        branch: 
+        - prod
+        - travis-ci-prod-upd
   - stage: DEV| deploying into dev environment
     script: skip
     before_deploy: cd scripts/lambda/ss
