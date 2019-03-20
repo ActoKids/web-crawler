@@ -38,6 +38,7 @@ jobs:
     script: skip
     before_deploy: cd scripts/lambda/production/google/target_package
     deploy:
+      zip: google_package.zip
       provider: lambda
       role: $AWS_LAMBDA_ROLE_ARN_PROD
       function_name: "GoogleCalendarScraper_prod"
