@@ -19,7 +19,7 @@ jobs:
      local_dir: scripts/lambda/production/ofa
   - stage: PROD| deploying into ShadowSealScraper_prod
     script: skip
-    before_deploy: cd scripts/lambda/production/ss
+    before_deploy: cd scripts/lambda/production/ss/target package
     deploy:
       provider: lambda
       role: $AWS_LAMBDA_ROLE_ARN_PROD
@@ -35,7 +35,7 @@ jobs:
         - travis-ci-prod-upd
   - stage: PROD| deploying into GoogleCalenderScraper_prod
     script: skip
-    before_deploy: cd scripts/lambda/production/google
+    before_deploy: cd scripts/lambda/production/google/target package
     deploy:
       provider: lambda
       role: $AWS_LAMBDA_ROLE_ARN_PROD
