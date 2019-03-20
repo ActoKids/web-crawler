@@ -120,25 +120,25 @@ def main():
                     data["description"] = row[2].replace('\n', '').replace('\xa0', '')
                 #print(row)
                     if "location_address" not in data:
-                        data["location_address"] = "Contact organizer for details"
+                        data["location_address"] = "Contact organizer for Details"
                     data["event_link"] = "http://www.shadowsealsswimming.org/Calendar.html"
                     data["event_id"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, data["event_name"] + data["start_date_time"]))
                     #print("Found event " + data["Title"], file=f)
                     data["user_name"] = "Crawler"
                     data["activity_type"] = "Swimming"
                     data["org_name"] = "Shadow Seals Swimming"
-                    data["location_name"] = "Contact organizer for details"
+                    data["location_name"] = "Contact organizer for Details"
                     data["contact_name"] = "Organization Admin"
                     data["contact_phone"] = "Unknown"
                     data["contact_email"] = "info@shadowsealsswimming.org"
-                    data["end_date_time"] = "Contact organizer for details"
+                    data["end_date_time"] = "Contact organizer for Details"
                     data["frequency"] = "Once"
-                    data["cost"] = "Contact organizer for details"
+                    data["cost"] = "Contact organizer for Details"
                     data["picture_url"] = "http://www.shadowsealsswimming.org/images/c03de8f057c6e9610d95a251f7085d95_944j.png"
                     data["min_age"] = "?"
                     data["max_age"] = "?"
-                    data["disability_types"] = "Contact organizer for details"
-                    data["inclusive_event"] = "Contact organizer for details"
+                    data["disability_types"] = "Contact organizer for Details"
+                    data["inclusive_event"] = "Contact organizer for Details"
                     data["event_status"] = "pending"
                     data["approver"] = "N/A"
                     data["created_timestamp"] = str(datetime.now())
