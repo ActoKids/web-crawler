@@ -42,8 +42,6 @@ OFA = "https://outdoorsforall.org/events-news/calendar/"
 region = "us-west-2"
 table_name = "ak-prod-events-dynamo"
 dynamodb = boto3.resource('dynamodb', region)
-print("Region:" + region)
-print("Table:" + table_name)
 
 def ofa_crawl(url):
     global QUEUE
@@ -185,7 +183,6 @@ def open_link(current_soup, current_url):
     data["location_address"] = str(find_location(current_soup))
     data["start_date_time"] = str(find_date(current_soup))
     data["user_name"] = "Crawler"
-    data["activity_type"] = "Contact organizer for details"
     data["org_name"] = "Outdoor's for All"
     data["location_name"] = "Contact organizer for details"
     data["contact_name"] = "Organization Admin"
@@ -299,6 +296,8 @@ def find_location(soup):
 
 # Main function
 def main():
+    print("Region:" + region)
+    print("Table:" + table_name)
     count = 0
     while count != 5:
         try:

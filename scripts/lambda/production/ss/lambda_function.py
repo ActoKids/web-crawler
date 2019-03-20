@@ -23,8 +23,6 @@ import uuid
 region = "us-west-2"
 table_name = "ak-prod-events-dynamo"
 dynamodb = boto3.resource('dynamodb', region)
-print("Region:" + region)
-print("Table:" + table_name)
 #f = open("sslog.log", "w")
 OUTPUT = []
 ADDRESS = ['Renton: Lindbergh HS Pool: 16740 128th Ave SE Renton, WA 98058',
@@ -33,6 +31,9 @@ ADDRESS = ['Renton: Lindbergh HS Pool: 16740 128th Ave SE Renton, WA 98058',
            'Hazen High School: 1101 Hoquiam Ave NE Renton, WA 98059 425-204-4230']
 #This script scrapes a website and pulls specific data.
 def main():
+    print("Region:" + region)
+    print("Table:" + table_name)
+    table = dynamodb.Table(table_name)
     #print("Starting SS Scraper; " + str(datetime.now()), file=f)
     print("Starting SS Scraper; " + str(datetime.now()))
     try:
