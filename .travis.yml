@@ -10,17 +10,17 @@ jobs:
     script: skip
     deploy:
      provider: s3
-     bucket: "ofascraper-prod-s3"
-     region: us-east-1
+     bucket: "ofa-scraper"
+     region: us-west-2
      on:
         branch:
         - prod
-        - travis-ci-prod-upd
-     local_dir: scripts/lambda/production/ofa
+     local_dir: scripts/lambda/production/ofa/target_package
   - stage: PROD| deploying into ShadowSealScraper_prod
     script: skip
-    before_deploy: cd scripts/lambda/production/ss/target package
+    before_deploy: cd scripts/lambda/production/ss/target_package
     deploy:
+      zip: ss_package.zip
       provider: lambda
       role: $AWS_LAMBDA_ROLE_ARN_PROD
       function_name: "ShadowSealScraper_prod"
@@ -32,11 +32,11 @@ jobs:
       on:
         branch: 
         - prod
-        - travis-ci-prod-upd
   - stage: PROD| deploying into GoogleCalenderScraper_prod
     script: skip
-    before_deploy: cd scripts/lambda/production/google/target package
+    before_deploy: cd scripts/lambda/production/google/target_package
     deploy:
+      zip: google_package.zip
       provider: lambda
       role: $AWS_LAMBDA_ROLE_ARN_PROD
       function_name: "GoogleCalendarScraper_prod"
@@ -48,7 +48,6 @@ jobs:
       on:
         branch: 
         - prod
-        - travis-ci-prod-upd
   - stage: DEV| deploying into dev environment
     script: skip
     before_deploy: cd scripts/lambda/ss
@@ -56,7 +55,7 @@ jobs:
       provider: lambda
       role: $AWS_LAMBDA_ROLE_ARN_DEV
       function_name: "ak-crawler-dev-lbd"
-      region: "us-east-1"
+      region: "us-west-2"
       handler_name: "handler"
       runtime: "python3.6"
       on:
