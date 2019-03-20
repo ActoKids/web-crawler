@@ -10,13 +10,13 @@ jobs:
     script: skip
     deploy:
      provider: s3
-     bucket: "ofascraper-prod-s3"
+     bucket: "ofa-scraper"
      region: us-west-2
      on:
         branch:
         - prod
         - mike_feature/URGENT_FINAL
-     local_dir: scripts/lambda/production/ofa
+     local_dir: scripts/lambda/production/ofa/target_package
   - stage: PROD| deploying into ShadowSealScraper_prod
     script: skip
     before_deploy: cd scripts/lambda/production/ss/target_package
