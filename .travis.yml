@@ -21,7 +21,7 @@ jobs:
     script: skip
     before_deploy: cd scripts/lambda/production/ss/target_package
     deploy:
-      zip_file: ss_package.zip
+      zip: ss_package.zip
       provider: lambda
       role: $AWS_LAMBDA_ROLE_ARN_PROD
       function_name: "ShadowSealScraper_prod"
