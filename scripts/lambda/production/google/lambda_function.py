@@ -16,8 +16,6 @@ from datetime import datetime
 region = "us-west-2"
 table_name = "ak-prod-events-dynamo"
 dynamodb = boto3.resource('dynamodb', region)
-print("Region:" + region)
-print("Table:" + table_name)
 table = dynamodb.Table(table_name)
 
 # If modifying these scopes, delete the file token.pickle.
@@ -27,6 +25,8 @@ url = ''
 
 
 def main():
+    print("Region:" + region)
+    print("Table:" + table_name)
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first

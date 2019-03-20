@@ -23,8 +23,6 @@ import uuid
 region = "us-west-2"
 table_name = "ak-prod-events-dynamo"
 dynamodb = boto3.resource('dynamodb', region)
-print("Region:" + region)
-print("Table:" + table_name)
 #f = open("sslog.log", "w")
 OUTPUT = []
 ADDRESS = ['Renton: Lindbergh HS Pool: 16740 128th Ave SE Renton, WA 98058',
@@ -33,6 +31,9 @@ ADDRESS = ['Renton: Lindbergh HS Pool: 16740 128th Ave SE Renton, WA 98058',
            'Hazen High School: 1101 Hoquiam Ave NE Renton, WA 98059 425-204-4230']
 #This script scrapes a website and pulls specific data.
 def main():
+    print("Region:" + region)
+    print("Table:" + table_name)
+    table = dynamodb.Table(table_name)
     #print("Starting SS Scraper; " + str(datetime.now()), file=f)
     print("Starting SS Scraper; " + str(datetime.now()))
     try:
@@ -119,25 +120,25 @@ def main():
                     data["description"] = row[2].replace('\n', '').replace('\xa0', '')
                 #print(row)
                     if "location_address" not in data:
-                        data["location_address"] = "Contact organizer for details"
+                        data["location_address"] = "Contact organizer for Details"
                     data["event_link"] = "http://www.shadowsealsswimming.org/Calendar.html"
                     data["event_id"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, data["event_name"] + data["start_date_time"]))
                     #print("Found event " + data["Title"], file=f)
                     data["user_name"] = "Crawler"
                     data["activity_type"] = "Swimming"
                     data["org_name"] = "Shadow Seals Swimming"
-                    data["location_name"] = "Contact organizer for details"
+                    data["location_name"] = "Contact organizer for Details"
                     data["contact_name"] = "Organization Admin"
                     data["contact_phone"] = "Unknown"
                     data["contact_email"] = "info@shadowsealsswimming.org"
-                    data["end_date_time"] = "Contact organizer for details"
+                    data["end_date_time"] = "Contact organizer for Details"
                     data["frequency"] = "Once"
-                    data["cost"] = "Contact organizer for details"
+                    data["cost"] = "Contact organizer for Details"
                     data["picture_url"] = "http://www.shadowsealsswimming.org/images/c03de8f057c6e9610d95a251f7085d95_944j.png"
                     data["min_age"] = "?"
                     data["max_age"] = "?"
-                    data["disability_types"] = "Contact organizer for details"
-                    data["inclusive_event"] = "Contact organizer for details"
+                    data["disability_types"] = "Contact organizer for Details"
+                    data["inclusive_event"] = "Contact organizer for Details"
                     data["event_status"] = "pending"
                     data["approver"] = "N/A"
                     data["created_timestamp"] = str(datetime.now())

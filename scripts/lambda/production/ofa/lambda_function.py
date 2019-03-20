@@ -42,8 +42,6 @@ OFA = "https://outdoorsforall.org/events-news/calendar/"
 region = "us-west-2"
 table_name = "ak-prod-events-dynamo"
 dynamodb = boto3.resource('dynamodb', region)
-print("Region:" + region)
-print("Table:" + table_name)
 
 def ofa_crawl(url):
     global QUEUE
@@ -185,20 +183,20 @@ def open_link(current_soup, current_url):
     data["location_address"] = str(find_location(current_soup))
     data["start_date_time"] = str(find_date(current_soup))
     data["user_name"] = "Crawler"
-    data["activity_type"] = "Contact organizer for details"
     data["org_name"] = "Outdoor's for All"
-    data["location_name"] = "Contact organizer for details"
+    data["location_name"] = "Contact organizer for Details"
     data["contact_name"] = "Organization Admin"
     data["contact_phone"] = "(206)838-6030"
     data["contact_email"] = "info@outdoorsforall.org"
-    data["end_date_time"] = "Contact organizer for details"
+    data["end_date_time"] = "Contact organizer for Details"
+    data["activity_type"] = "Contact Organizer for Details"
     data["frequency"] = "Once"
     data["cost"] = "Contact organizer for details"
     data["picture_url"] = "https://pbs.twimg.com/profile_images/950894553162117121/Q88YRLQ8_400x400.jpg"
     data["min_age"] = "?"
     data["max_age"] = "?"
-    data["disability_types"] = "Contact organizer for details"
-    data["inclusive_event"] = "Contact organizer for details"
+    data["disability_types"] = "Contact organizer for Details"
+    data["inclusive_event"] = "Contact organizer for Details"
     data["event_status"] = "pending"
     data["approver"] = "N/A"
     data["created_timestamp"] = str(datetime.now())
@@ -299,6 +297,8 @@ def find_location(soup):
 
 # Main function
 def main():
+    print("Region:" + region)
+    print("Table:" + table_name)
     count = 0
     while count != 5:
         try:
