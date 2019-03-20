@@ -15,7 +15,7 @@ jobs:
      on:
         branch:
         - prod
-        - URGENT_FINAL
+        - mike_feature/URGENT_FINAL
      local_dir: scripts/lambda/production/ofa
   - stage: PROD| deploying into ShadowSealScraper_prod
     script: skip
@@ -32,7 +32,7 @@ jobs:
       on:
         branch: 
         - prod
-        - URGENT_FINAL
+        - mike_feature/URGENT_FINAL
   - stage: PROD| deploying into GoogleCalenderScraper_prod
     script: skip
     before_deploy: cd scripts/lambda/production/google/target_package
@@ -48,7 +48,7 @@ jobs:
       on:
         branch: 
         - prod
-        - URGENT_FINAL
+        - mike_feature/URGENT_FINAL
   - stage: DEV| deploying into dev environment
     script: skip
     before_deploy: cd scripts/lambda/ss
