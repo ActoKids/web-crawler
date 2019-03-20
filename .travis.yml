@@ -4,21 +4,60 @@ python:
 cache: pip
 install:
   - pip install boto3
-script: skip
-deploy:
-  - provider: lambda
-    role: $AWS_LAMBDA_ROLE_ARN_DEV
-    function_name: "ak-crawler-dev-lbd"
-    region: "us-east-1"
-    handler_name: "handler"
-    runtime: "python3.6"
-    on:
-      branch: dev
-  - provider: lambda
-    role: $AWS_LAMBDA_ROLE_ARN_PROD
-    function_name: "ak-crawler-prod-lbd"
-    region: "us-east-1"
-    handler_name: "handler"
-    runtime: "python3.6"
-    on:
-      branch: prod
+jobs:
+  include:
+  - stage: PROD| deploying OFAScraper_prod into S3 bucket
+    script: skip
+    deploy:
+     provider: s3
+     bucket: "ofa-scraper"
+     region: us-west-2
+     on:
+        branch:
+        - prod
+     local_dir: scripts/lambda/production/ofa/target_package
+  - stage: PROD| deploying into ShadowSealScraper_prod
+    script: skip
+    before_deploy: cd scripts/lambda/production/ss/target_package
+    deploy:
+      zip: ss_package.zip
+      provider: lambda
+      role: $AWS_LAMBDA_ROLE_ARN_PROD
+      function_name: "ShadowSealScraper_prod"
+      region: "us-west-2"
+      module_name: "lambda_function"
+      handler_name: "lambda_handler"
+      timeout: 60
+      runtime: "python3.6"
+      on:
+        branch: 
+        - prod
+  - stage: PROD| deploying into GoogleCalenderScraper_prod
+    script: skip
+    before_deploy: cd scripts/lambda/production/google/target_package
+    deploy:
+      zip: google_package.zip
+      provider: lambda
+      role: $AWS_LAMBDA_ROLE_ARN_PROD
+      function_name: "GoogleCalendarScraper_prod"
+      region: "us-west-2"
+      module_name: "lambda_function"
+      handler_name: "lambda_handler"
+      timeout: 60
+      runtime: "python3.6"
+      on:
+        branch: 
+        - prod
+  - stage: DEV| deploying into dev environment
+    script: skip
+    before_deploy: cd scripts/lambda/ss
+    deploy: 
+      provider: lambda
+      role: $AWS_LAMBDA_ROLE_ARN_DEV
+      function_name: "ak-crawler-dev-lbd"
+      region: "us-west-2"
+      handler_name: "handler"
+      runtime: "python3.6"
+      on:
+        branch:
+        - dev
